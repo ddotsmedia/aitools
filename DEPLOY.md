@@ -8,6 +8,7 @@ Fully automated, idempotent deploy. Three scripts:
 | `deploy.sh` | VPS, every update | Pull → build → migrate → seed-if-empty → restart → health-check |
 | `update.sh` | VPS | Smart updater — redeploys ONLY when origin has new commits |
 | `infra/install-autodeploy.sh` | VPS, once | Install systemd timer → auto-deploy every push |
+| `deploy.bat` | Windows dev | **One-click**: commit → push → SSH-trigger VPS deploy |
 | `deploy.ps1` | Windows dev | Validate → push → SSH-run `deploy.sh` on the VPS |
 
 ## Fully automatic deploy (set-and-forget)
