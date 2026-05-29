@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Syne, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import type { NavMenu } from "@hub/ui";
-import { Header, Footer, Button } from "@hub/ui";
+import { Header, Footer, Button, CompareProvider, CompareBar } from "@hub/ui";
 import { api } from "@/lib/api";
 import { COLLECTIONS } from "@/lib/collections";
 
@@ -47,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`dark ${display.variable} ${mono.variable}`}>
       <body className="flex min-h-screen flex-col bg-navy text-slate-100 antialiased">
+        <CompareProvider>
         <Header
           nav={[
             { href: "/tools", label: "Browse" },
@@ -64,6 +65,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
         <div className="flex-1">{children}</div>
         <Footer />
+        <CompareBar />
+        </CompareProvider>
       </body>
     </html>
   );

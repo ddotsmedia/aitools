@@ -9,3 +9,4 @@ export { Logo } from "./Logo";
 export { Header, type HeaderProps, type NavItem, type NavMenu, type NavMenuItem } from "./Header";
 export { Footer } from "./Footer";
 export { ToolCard, type ToolCardProps } from "./ToolCard";
+export { CompareProvider, CompareBar, CompareCheckbox } from "./Compare";

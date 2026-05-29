@@ -2,6 +2,7 @@ import * as React from "react";
 import type { ToolSummary } from "@hub/types";
 import { cn } from "./cn";
 import { VerifiedFreeBadge } from "./VerifiedFreeBadge";
+import { CompareCheckbox } from "./Compare";
 
 const PRICING_LABEL: Record<ToolSummary["pricingModel"], string> = {
   FREE: "Free",
@@ -73,6 +74,8 @@ export function ToolCard({ tool, href = `/tools/${tool.slug}` }: ToolCardProps) 
     >
       {/* category accent bar */}
       <span className="absolute inset-y-0 left-0 w-1.5" style={{ background: accent }} aria-hidden="true" />
+
+      <CompareCheckbox slug={tool.slug} />
 
       {/* favicon */}
       <span

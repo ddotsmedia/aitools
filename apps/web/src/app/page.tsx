@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button, Badge, VerifiedFreeBadge } from "@hub/ui";
 import { api } from "@/lib/api";
 import { Hero } from "@/components/Hero";
+import { ToolOfTheDay } from "@/components/ToolOfTheDay";
 
 export const revalidate = 120;
 
@@ -30,6 +31,9 @@ export default async function Home() {
     <main>
       {/* ── Hero (premium, animated) ──────────────────────────────────────── */}
       <Hero total={totals.total || 0} categories={categories.length} />
+
+      {/* ── Tool of the Day ───────────────────────────────────────────────── */}
+      <ToolOfTheDay />
 
       {/* ── All categories ────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">

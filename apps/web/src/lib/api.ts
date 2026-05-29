@@ -50,6 +50,7 @@ export interface ToolDoc {
   tags: string[];
   freshnessScore: number;
   popularity: number;
+  createdAt?: number;
   logoUrl?: string | null;
 }
 
