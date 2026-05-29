@@ -1,0 +1,155 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+enum PricingModel {
+  FREE
+  FREEMIUM
+  PAID
+  SUBSCRIPTION
+  USAGE_BASED
+  OPEN_SOURCE
+  CONTACT
+}
+
+enum ToolStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+model Tool {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  name           String
+  tagline        String        // GEO TL;DR
+  description    String
+  websiteUrl     String
+  logoUrl        String?
+  status         ToolStatus    @default(PENDING)
+  pricingModel   PricingModel
+  freeTierReal   Boolean       @default(false) // verified no-card
+  hasApi         Boolean       @default(false)
+  isOpenSource   Boolean       @default(false)
+  platforms      String[]      // web/ios/android/mac/win/api/mcp
+  languages      String[]      // incl ar
+  regions        String[]      // UAE/GDPR/GLOBAL
+  foundedYear    Int?
+  popularity     Int           @default(0)
+  freshnessScore Int           @default(0) // 0-100 from verification
+  lastVerifiedAt DateTime?
+  embedding      Unsupported("vector(1024)")?
+  vendorId       String?
+  vendor         Vendor?       @relation(fields: [vendorId], references: [id])
+  categories     Category[]    @relation("ToolCategories")
+  tags           Tag[]         @relation("ToolTags")
+  pricingTiers   PricingTier[]
+  reviews        Review[]
+  changeEvents   ChangeEvent[]
+  verifications  VerificationLog[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  @@index([status, popularity])
+  @@index([freshnessScore])
+}
+
+model Category {
+  id       String     @id @default(cuid())
+  slug     String     @unique
+  name     String
+  parentId String?
+  parent   Category?  @relation("CatTree", fields: [parentId], references: [id])
+  children Category[] @relation("CatTree")
+  tools    Tool[]     @relation("ToolCategories")
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  slug  String @unique
+  name  String
+  tools Tool[] @relation("ToolTags")
+}
+
+model PricingTier {
+  id       String  @id @default(cuid())
+  toolId   String
+  tool     Tool    @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  name     String
+  priceUsd Float?
+  period   String? // mo/yr/once
+  features String[]
+}
+
+model Vendor {
+  id    String @id @default(cuid())
+  name  String
+  url   String?
+  tools Tool[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  toolId    String
+  tool      Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int      // 1-5
+  body      String
+  verified  Boolean  @default(false) // confirmed real user
+  createdAt DateTime @default(now())
+  @@unique([toolId, userId])
+}
+
+model ChangeEvent {
+  id        String   @id @default(cuid())
+  toolId    String
+  tool      Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  kind      String   // pricing/version/status/feature
+  summary   String
+  createdAt DateTime @default(now())
+}
+
+model VerificationLog {
+  id          String   @id @default(cuid())
+  toolId      String
+  tool        Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  reachable   Boolean
+  pricingHash String?
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model Collection {
+  id      String  @id @default(cuid())
+  slug    String  @unique
+  title   String
+  intro   String?
+  curated Boolean @default(false) // editor's pick
+  toolIds String[]
+  userId  String?
+  user    User?   @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  role        UserRole     @default(USER)
+  reviews     Review[]
+  collections Collection[]
+  createdAt   DateTime     @default(now())
+}
