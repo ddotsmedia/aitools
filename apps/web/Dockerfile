@@ -7,16 +7,19 @@ COPY apps/web/package.json          ./apps/web/
 COPY apps/api/package.json          ./apps/api/
 COPY packages/ui/package.json       ./packages/ui/
 COPY packages/types/package.json    ./packages/types/
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # ── Stage 2: builder ──────────────────────────────────────────────────────────
 FROM deps AS builder
 WORKDIR /app
+# NEXT_PUBLIC_* are inlined into the client bundle at build time — must be set here.
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 COPY . .
-# Build shared packages first so @hub/ui and @hub/types resolve
-RUN pnpm --filter @hub/types build 2>/dev/null || true
-RUN pnpm --filter @hub/ui    build 2>/dev/null || true
-RUN NEXT_OUTPUT=standalone pnpm --filter @hub/web   build
+# pnpm resolves the next binary from @hub/web's own node_modules reliably.
+RUN NEXT_OUTPUT=standalone pnpm --filter @hub/web exec next build
 
 # ── Stage 3: runner (slim) ────────────────────────────────────────────────────
 FROM node:20-alpine AS runner

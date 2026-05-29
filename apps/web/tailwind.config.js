@@ -1,7 +1,9 @@
-import type { Config } from "tailwindcss";
-// Ddotsmedia four-dot brand identity.
-export default {
-  content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "../../packages/ui/src/**/*.{ts,tsx}",
+  ],
   darkMode: "class",
   theme: {
     extend: {
@@ -15,4 +17,4 @@ export default {
     },
   },
   plugins: [],
-} satisfies Config;
+};
