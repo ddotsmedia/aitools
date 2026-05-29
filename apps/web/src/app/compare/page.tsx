@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge, VerifiedFreeBadge, Button } from "@hub/ui";
 import { api, type CompareTool } from "@/lib/api";
+import { ComparePicker } from "@/components/ComparePicker";
 
 export const dynamic = "force-dynamic";
 type SP = Record<string, string | string[] | undefined>;
@@ -28,16 +29,24 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const slugs = (str(sp.tools) ?? "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 4);
   const tools: CompareTool[] = slugs.length >= 1 ? await api.compareSafe(slugs) : [];
 
+  const seed = (slugs.length ? slugs : []).map((slug) => {
+    const t = tools.find((x) => x.slug === slug);
+    return { slug, name: t?.name ?? slug };
+  });
+
   if (tools.length < 2) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-16 text-center">
+      <main className="mx-auto max-w-3xl px-6 py-12">
         <h1 className="text-3xl font-bold">Compare AI tools</h1>
-        <p className="mt-3 text-slate-400">
-          Pick 2–4 tools to compare side by side. Add them from any tool page, or start by browsing.
+        <p className="mt-2 text-slate-400">
+          Search and add 2–4 tools to compare side by side.
         </p>
         <div className="mt-6">
-          <Link href="/tools"><Button>Browse tools</Button></Link>
+          <ComparePicker selected={seed} />
         </div>
+        <p className="mt-6 text-sm text-slate-500">
+          Or <Link href="/tools" className="text-teal hover:underline">browse all tools</Link> and use “Compare” on any tool page.
+        </p>
       </main>
     );
   }
@@ -58,6 +67,8 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
     <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <h1 className="text-3xl font-bold">{tools.map((t) => t.name).join(" vs ")}</h1>
       <p className="mt-1 text-slate-400">Side-by-side comparison of {tools.length} verified tools.</p>
+
+      <div className="mt-5"><ComparePicker selected={seed} /></div>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-white/10">
         <table className="w-full min-w-[640px] text-sm">
