@@ -2,9 +2,14 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Header, Footer, Button } from "@hub/ui";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://aitoolshub.example.com";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://aitoolshub.ddotsmedia.com";
+
+function safeSiteUrl(s: string): URL {
+  try { return new URL(s); } catch { return new URL("https://aitoolshub.ddotsmedia.com"); }
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
+  metadataBase: safeSiteUrl(SITE),
   title: { default: "AI Tools Hub — Verified AI tools", template: "%s | AI Tools Hub" },
   description:
     "Discover, compare, verify AI tools. Every listing checked for live status, real pricing, genuine free tiers.",
