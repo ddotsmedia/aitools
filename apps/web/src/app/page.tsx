@@ -1,96 +1,71 @@
 import Link from "next/link";
-import { Button, Badge, VerifiedFreeBadge, ToolCard } from "@hub/ui";
-import { api, docToSummary } from "@/lib/api";
+import { Button, Badge, VerifiedFreeBadge } from "@hub/ui";
+import { api } from "@/lib/api";
 
-export const revalidate = 60;
+export const revalidate = 120;
 
-const CATEGORIES = [
-  { slug: "writing",       label: "Writing",        emoji: "✍️" },
-  { slug: "image",         label: "Image",          emoji: "🖼️" },
-  { slug: "audio",         label: "Audio & Voice",  emoji: "🎙️" },
-  { slug: "code",          label: "Code",           emoji: "💻" },
-  { slug: "video",         label: "Video",          emoji: "🎬" },
-  { slug: "productivity",  label: "Productivity",   emoji: "⚡" },
-  { slug: "data",          label: "Data & Analytics",emoji: "📊" },
-  { slug: "agents",        label: "AI Agents",      emoji: "🤖" },
-  { slug: "search",        label: "Search",         emoji: "🔍" },
-  { slug: "transcription", label: "Transcription",  emoji: "🗣️" },
-  { slug: "translation",   label: "Translation",    emoji: "🌐" },
-  { slug: "security",      label: "Security",       emoji: "🔒" },
-];
+const EMOJI: Record<string, string> = {
+  writing: "✍️", image: "🖼️", audio: "🎙️", video: "🎬", code: "💻",
+  productivity: "⚡", "data-analytics": "📊", "ai-agents": "🤖", search: "🔍",
+  transcription: "🗣️", translation: "🌐", chatbots: "💬", marketing: "📣",
+  design: "🎨", research: "🔬", "customer-support": "🎧", security: "🔒",
+  education: "🎓", healthcare: "🩺", "developer-tools": "🛠️",
+  "website-builders": "🌐", "app-builders": "📱", seo: "📈", "social-media": "📲",
+  "logo-design": "✏️", "ui-ux-design": "🎯", "resume-career": "📄",
+  "e-commerce": "🛒", legal: "⚖️", cybersecurity: "🛡️", "3d-game-dev": "🎮",
+  "sales-crm": "💼", "hr-recruitment": "👥", "finance-accounting": "💰", travel: "✈️",
+};
 
 export default async function Home() {
-  // Real "freshly verified" feed + live totals from the API.
-  const [fresh, recent, cats] = await Promise.all([
-    api.search("?sort=freshness&take=6").catch(() => ({ items: [], total: 0 })),
-    api.search("?sort=new&take=6").catch(() => ({ items: [], total: 0 })),
+  const [totals, cats] = await Promise.all([
+    api.search("?take=1").catch(() => ({ total: 0 })),
     api.categories().catch(() => []),
   ]);
+  const categories = cats
+    .filter((c) => c._count.tools > 0)
+    .sort((a, b) => b._count.tools - a._count.tools);
+
   const STATS = [
-    { value: `${fresh.total || 0}`, label: "Verified tools" },
-    { value: `${cats.length || 0}`, label: "Categories" },
-    { value: "Daily", label: "Re-verification" },
-    { value: "100%", label: "Pricing checked" },
+    { value: `${totals.total || 0}`, label: "Verified tools" },
+    { value: `${categories.length}`, label: "Categories" },
+    { value: "12h", label: "Re-verification" },
+    { value: "100%", label: "Links checked" },
   ];
 
   return (
     <main>
-
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        {/* Subtle radial glow */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 -z-10"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(42,154,164,0.15) 0%, transparent 70%)",
-          }}
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(42,154,164,0.15) 0%, transparent 70%)" }}
         />
-
         <div className="mx-auto max-w-5xl px-4 pb-14 pt-20 text-center sm:px-6 sm:pt-24">
           <Badge tone="leaf" className="mb-5 inline-flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-leaf" />
-            Machine-verified · updated daily
+            Machine-verified · updated every 12h
           </Badge>
-
           <h1 className="text-balance text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-            Find the{" "}
-            <span className="text-teal">right AI tool</span>
+            Find the <span className="text-teal">right AI tool</span>
             <br className="hidden sm:block" /> for every job.
           </h1>
-
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
-            Describe what you need — get a verified, working tool stack.
-            Every listing checked for live status, real pricing, and genuine free tiers.
+            Describe what you need — get a verified, working tool stack. Every listing checked for
+            live status, real pricing, and genuine free tiers.
           </p>
-
-          {/* Search */}
-          <form
-            action="/stack"
-            className="mx-auto mt-8 flex max-w-2xl flex-col gap-2 sm:flex-row"
-          >
+          <form action="/stack" className="mx-auto mt-8 flex max-w-2xl flex-col gap-2 sm:flex-row">
             <input
               name="q"
               placeholder="e.g. Transcribe Arabic meetings, then summarise…"
               className="h-12 flex-1 rounded-xl border border-white/15 bg-white/5 px-4 text-sm text-slate-100 placeholder:text-slate-500 focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal/50 transition"
             />
-            <Button size="lg" type="submit" className="h-12 flex-shrink-0">
-              Build my stack →
-            </Button>
+            <Button size="lg" type="submit" className="h-12 flex-shrink-0">Build my stack →</Button>
           </form>
-
-          {/* Quick browse links */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-slate-500">
             <span>Popular:</span>
             {["ChatGPT alternatives", "Free image AI", "Arabic voice tools", "Code assistants"].map((q) => (
-              <a
-                key={q}
-                href={`/search?q=${encodeURIComponent(q)}`}
-                className="hover:text-teal transition-colors"
-              >
-                {q}
-              </a>
+              <a key={q} href={`/search?q=${encodeURIComponent(q)}`} className="hover:text-teal transition-colors">{q}</a>
             ))}
           </div>
         </div>
@@ -102,73 +77,37 @@ export default async function Home() {
           {STATS.map(({ value, label }) => (
             <div key={label} className="px-6 py-6 text-center">
               <p className="text-2xl font-bold text-slate-50">{value}</p>
-              <p className="mt-0.5 text-xs text-slate-500 uppercase tracking-wider">{label}</p>
+              <p className="mt-0.5 text-xs uppercase tracking-wider text-slate-500">{label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Categories ────────────────────────────────────────────────────── */}
+      {/* ── All categories ────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <div className="mb-6 flex items-end justify-between">
-          <h2 className="text-xl font-semibold text-slate-100">Browse by category</h2>
-          <Link href="/tools" className="text-sm text-teal hover:underline transition-colors">
-            All categories →
-          </Link>
+          <div>
+            <h2 className="text-xl font-semibold text-slate-100">Browse by category</h2>
+            <p className="mt-1 text-sm text-slate-500">{categories.length} categories · {totals.total} verified tools</p>
+          </div>
+          <Link href="/tools" className="text-sm text-teal hover:underline transition-colors">All tools →</Link>
         </div>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6">
-          {CATEGORIES.map(({ slug, label, emoji }) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {categories.map((c) => (
             <Link
-              key={slug}
-              href={`/tools?category=${slug}`}
-              className="flex flex-col items-center gap-2 rounded-xl border border-white/8 bg-white/4 px-3 py-4 text-center transition-all hover:border-teal/30 hover:bg-teal/8 hover:text-teal group"
+              key={c.slug}
+              href={`/category/${c.slug}`}
+              className="group flex items-center gap-3 rounded-xl border border-white/8 bg-white/4 px-4 py-3 transition-all hover:border-teal/30 hover:bg-teal/8"
             >
-              <span className="text-2xl" aria-hidden="true">{emoji}</span>
-              <span className="text-xs font-medium text-slate-400 group-hover:text-teal transition-colors leading-snug">
-                {label}
+              <span className="text-2xl" aria-hidden="true">{EMOJI[c.slug] ?? "🧩"}</span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-medium text-slate-200 group-hover:text-teal">{c.name}</span>
+                <span className="text-xs text-slate-500">{c._count.tools} tools</span>
               </span>
             </Link>
           ))}
         </div>
       </section>
-
-      {/* ── Freshly verified feed ─────────────────────────────────────────── */}
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
-        <div className="mb-6 flex items-end justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-100">Freshly verified</h2>
-            <p className="mt-1 text-sm text-slate-500">Re-checked in the last 24 hours</p>
-          </div>
-          <Link href="/tools" className="text-sm text-teal hover:underline transition-colors">
-            Browse all {STATS[0].value} →
-          </Link>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {fresh.items.map((d) => (
-            <ToolCard key={d.id} tool={docToSummary(d)} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── Recently added ────────────────────────────────────────────────── */}
-      {recent.items.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
-          <div className="mb-6 flex items-end justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-100">Recently added</h2>
-              <p className="mt-1 text-sm text-slate-500">Newest verified tools in the directory</p>
-            </div>
-            <Link href="/tools?sort=new" className="text-sm text-teal hover:underline transition-colors">
-              See all new →
-            </Link>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recent.items.map((d) => (
-              <ToolCard key={d.id} tool={docToSummary(d)} />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* ── Trust / verification callout ──────────────────────────────────── */}
       <section className="border-t border-white/8 bg-white/3">
@@ -177,35 +116,26 @@ export default async function Home() {
             <div>
               <Badge tone="teal" className="mb-4">How it works</Badge>
               <h2 className="text-2xl font-bold leading-snug text-slate-50 sm:text-3xl">
-                Every tool is{" "}
-                <span className="text-teal">machine-verified</span>,
-                not just scraped.
+                Every tool is <span className="text-teal">machine-verified</span>, not just scraped.
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-slate-400">
-                Our verification workers check live status, scrape real pricing pages,
-                and test free-tier claims daily — so you can trust what you see.
+                Our verification engine checks live status, tracks real pricing pages, and tests
+                free-tier claims — so you can trust what you see. See it in the{" "}
+                <Link href="/changes" className="text-teal hover:underline">live change feed</Link>.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/methodology">
-                  <Button variant="outline" size="sm">Read the methodology →</Button>
-                </Link>
-                <Link href="/submit">
-                  <Button variant="ghost" size="sm">Submit a tool</Button>
-                </Link>
+                <Link href="/methodology"><Button variant="outline" size="sm">Read the methodology →</Button></Link>
+                <Link href="/submit"><Button variant="ghost" size="sm">Submit a tool</Button></Link>
               </div>
             </div>
-
             <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: "🟢", title: "Live status check", body: "We ping every tool URL daily and flag anything that's down." },
-                { icon: "💰", title: "Real pricing", body: "Pricing is scraped directly from the tool's own pricing page." },
-                { icon: "✅", title: "Free-tier testing", body: "Free tier claims are verified, not taken from the tool's marketing copy." },
+                { icon: "🟢", title: "Live status check", body: "We ping every tool URL and flag anything that's down." },
+                { icon: "💰", title: "Real pricing", body: "Pricing pages are tracked; changes are logged." },
+                { icon: "✅", title: "Free-tier testing", body: "Free-tier claims are machine-verified, not assumed." },
                 { icon: "📅", title: "Freshness score", body: "Every listing shows when it was last verified — 0 to 100." },
               ].map(({ icon, title, body }) => (
-                <div
-                  key={title}
-                  className="rounded-xl border border-white/8 bg-white/4 p-4"
-                >
+                <div key={title} className="rounded-xl border border-white/8 bg-white/4 p-4">
                   <span className="text-xl" aria-hidden="true">{icon}</span>
                   <p className="mt-2 text-sm font-semibold text-slate-200">{title}</p>
                   <p className="mt-1 text-xs leading-relaxed text-slate-500">{body}</p>
@@ -218,26 +148,19 @@ export default async function Home() {
 
       {/* ── Bottom CTA ────────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
-        <h2 className="text-2xl font-bold text-slate-50 sm:text-3xl">
-          Ready to find your stack?
-        </h2>
+        <h2 className="text-2xl font-bold text-slate-50 sm:text-3xl">Ready to find your stack?</h2>
         <p className="mx-auto mt-3 max-w-lg text-sm text-slate-400">
           Describe what you&apos;re trying to build — our AI recommends a complete, verified tool stack.
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <Link href="/stack">
-            <Button size="lg">Try Stack Builder</Button>
-          </Link>
-          <Link href="/tools">
-            <Button variant="outline" size="lg">Browse all tools</Button>
-          </Link>
+          <Link href="/stack"><Button size="lg">Try Stack Builder</Button></Link>
+          <Link href="/tools"><Button variant="outline" size="lg">Browse all tools</Button></Link>
         </div>
         <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-600">
           <VerifiedFreeBadge />
           <span>Free to use · No account needed</span>
         </p>
       </section>
-
     </main>
   );
 }
