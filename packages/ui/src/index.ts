@@ -6,6 +6,6 @@ export { Badge, type BadgeProps } from "./Badge";
 export { VerifiedFreeBadge, type VerifiedFreeBadgeProps } from "./VerifiedFreeBadge";
 export { FreshnessMeter, type FreshnessMeterProps } from "./FreshnessMeter";
 export { Logo } from "./Logo";
-export { Header, type HeaderProps, type NavItem } from "./Header";
+export { Header, type HeaderProps, type NavItem, type NavMenu, type NavMenuItem } from "./Header";
 export { Footer } from "./Footer";
 export { ToolCard, type ToolCardProps } from "./ToolCard";
