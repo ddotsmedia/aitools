@@ -5,8 +5,9 @@ import { ToolsModule } from "./modules/tools/tools.module";
 import { EnrichmentModule } from "./modules/enrichment/enrichment.module";
 import { TaxonomyModule } from "./modules/taxonomy/taxonomy.module";
 import { SearchModule } from "./modules/search/search.module";
+import { StackModule } from "./modules/stack/stack.module";
 import { HealthController } from "./health.controller";
-// P4+: ReviewsModule, VerificationModule
+// P5+: ReviewsModule, VerificationModule
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -15,6 +16,7 @@ import { HealthController } from "./health.controller";
     ToolsModule,
     EnrichmentModule,
     TaxonomyModule,
+    StackModule,
   ],
   controllers: [HealthController],
 })

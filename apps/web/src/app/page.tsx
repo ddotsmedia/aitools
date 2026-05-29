@@ -66,7 +66,7 @@ export default async function Home() {
 
           {/* Search */}
           <form
-            action="/search"
+            action="/stack"
             className="mx-auto mt-8 flex max-w-2xl flex-col gap-2 sm:flex-row"
           >
             <input

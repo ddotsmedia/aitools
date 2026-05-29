@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from app.services.enrich import enrich_tool
+from app.services.recommend import recommend as recommend_stack
 
-# P4 adds: /embed /search /recommend (stack builder)
 app = FastAPI(title="hub-ai")
 
 
@@ -21,3 +21,13 @@ class EnrichRequest(BaseModel):
 def enrich(req: EnrichRequest):
     """Draft catalog fields from a URL (Haiku). Human-approved before publish."""
     return enrich_tool(req.name, req.websiteUrl)
+
+
+class RecommendRequest(BaseModel):
+    goal: str
+
+
+@app.post("/recommend")
+def recommend(req: RecommendRequest):
+    """Stack Builder: goal -> multi-tool stack from the catalog (Sonnet/heuristic)."""
+    return recommend_stack(req.goal)

@@ -67,6 +67,21 @@ export interface CompareTool extends ApiTool {
   reviewCount: number;
 }
 
+export interface StackItem {
+  slug: string;
+  name: string;
+  tagline: string;
+  category: string;
+  role: string;
+  why: string;
+}
+export interface StackResult {
+  goal: string;
+  engine: string;
+  stack: StackItem[];
+  notes: string;
+}
+
 async function get<T>(path: string, revalidate = 30): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, { next: { revalidate } });
   if (!res.ok) throw new Error(`API ${path} → ${res.status}`);

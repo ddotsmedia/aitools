@@ -86,6 +86,7 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: redis://redis:6379
+      API_URL: http://api:4020
     depends_on:
       postgres:
         condition: service_healthy
