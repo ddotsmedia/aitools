@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button, Badge, VerifiedFreeBadge } from "@hub/ui";
 import { api } from "@/lib/api";
+import { Hero } from "@/components/Hero";
 
 export const revalidate = 120;
 
@@ -25,63 +26,10 @@ export default async function Home() {
     .filter((c) => c._count.tools > 0)
     .sort((a, b) => b._count.tools - a._count.tools);
 
-  const STATS = [
-    { value: `${totals.total || 0}`, label: "Verified tools" },
-    { value: `${categories.length}`, label: "Categories" },
-    { value: "12h", label: "Re-verification" },
-    { value: "100%", label: "Links checked" },
-  ];
-
   return (
     <main>
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10"
-          style={{ background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(42,154,164,0.15) 0%, transparent 70%)" }}
-        />
-        <div className="mx-auto max-w-5xl px-4 pb-14 pt-20 text-center sm:px-6 sm:pt-24">
-          <Badge tone="leaf" className="mb-5 inline-flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-leaf" />
-            Machine-verified · updated every 12h
-          </Badge>
-          <h1 className="text-balance text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-            Find the <span className="text-teal">right AI tool</span>
-            <br className="hidden sm:block" /> for every job.
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
-            Describe what you need — get a verified, working tool stack. Every listing checked for
-            live status, real pricing, and genuine free tiers.
-          </p>
-          <form action="/stack" className="mx-auto mt-8 flex max-w-2xl flex-col gap-2 sm:flex-row">
-            <input
-              name="q"
-              placeholder="e.g. Transcribe Arabic meetings, then summarise…"
-              className="h-12 flex-1 rounded-xl border border-white/15 bg-white/5 px-4 text-sm text-slate-100 placeholder:text-slate-500 focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal/50 transition"
-            />
-            <Button size="lg" type="submit" className="h-12 flex-shrink-0">Build my stack →</Button>
-          </form>
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-slate-500">
-            <span>Popular:</span>
-            {["ChatGPT alternatives", "Free image AI", "Arabic voice tools", "Code assistants"].map((q) => (
-              <a key={q} href={`/search?q=${encodeURIComponent(q)}`} className="hover:text-teal transition-colors">{q}</a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Stats strip ───────────────────────────────────────────────────── */}
-      <section className="border-y border-white/8 bg-white/3">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 divide-x divide-white/8 px-4 md:grid-cols-4">
-          {STATS.map(({ value, label }) => (
-            <div key={label} className="px-6 py-6 text-center">
-              <p className="text-2xl font-bold text-slate-50">{value}</p>
-              <p className="mt-0.5 text-xs uppercase tracking-wider text-slate-500">{label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* ── Hero (premium, animated) ──────────────────────────────────────── */}
+      <Hero total={totals.total || 0} categories={categories.length} />
 
       {/* ── All categories ────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">

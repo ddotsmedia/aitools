@@ -1,10 +1,14 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { Syne, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import type { NavMenu } from "@hub/ui";
 import { Header, Footer, Button } from "@hub/ui";
 import { api } from "@/lib/api";
 import { COLLECTIONS } from "@/lib/collections";
+
+const display = Syne({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display" });
+const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://aitoolshub.ddotsmedia.com";
 
@@ -41,7 +45,7 @@ async function buildMenus(): Promise<NavMenu[]> {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const menus = await buildMenus();
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark ${display.variable} ${mono.variable}`}>
       <body className="flex min-h-screen flex-col bg-navy text-slate-100 antialiased">
         <Header
           nav={[

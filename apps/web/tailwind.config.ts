@@ -7,10 +7,15 @@ export default {
     extend: {
       colors: {
         navy:  "#0b1733",
+        charcoal: "#0a0f1e",
         teal:  "#2a9aa4",
         sun:   "#f5b21a",
         amber: "#ef7e1a",
         leaf:  "#3fae57",
+      },
+      fontFamily: {
+        display: ["var(--font-display)", "ui-serif", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
     },
   },
