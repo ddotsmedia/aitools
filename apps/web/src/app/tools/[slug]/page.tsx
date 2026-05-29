@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Card, CardTitle, CardBody, Button, VerifiedFreeBadge, FreshnessMeter, ToolCard } from "@hub/ui";
 import { api, docToSummary, type ApiTool } from "@/lib/api";
+import { SaveButton } from "@/components/SaveButton";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3020";
 
@@ -144,9 +145,12 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
             {tool.isOpenSource && <Badge tone="leaf">Open source</Badge>}
           </div>
         </div>
-        <a href={tool.websiteUrl} target="_blank" rel="noopener noreferrer nofollow" className="w-full sm:w-auto">
-          <Button className="w-full sm:w-auto">Visit site ↗</Button>
-        </a>
+        <div className="flex w-full gap-2 sm:w-auto">
+          <a href={tool.websiteUrl} target="_blank" rel="noopener noreferrer nofollow" className="flex-1 sm:flex-none">
+            <Button className="w-full sm:w-auto">Visit site ↗</Button>
+          </a>
+          <SaveButton slug={tool.slug} />
+        </div>
       </header>
 
       {/* Trust row */}

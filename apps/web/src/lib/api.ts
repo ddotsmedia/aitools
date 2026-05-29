@@ -53,6 +53,14 @@ export interface ToolDoc {
   logoUrl?: string | null;
 }
 
+export interface ChangeFeedItem {
+  id: string;
+  kind: string; // status | pricing | free_tier | content | version | feature
+  summary: string;
+  createdAt: string;
+  tool: { slug: string; name: string; logoUrl?: string | null };
+}
+
 export type FacetDistribution = Record<string, Record<string, number>>;
 
 export interface SearchResult {
@@ -116,6 +124,8 @@ export const api = {
   compareSafe: (slugs: string[]) =>
     get<CompareTool[]>(`/compare?tools=${encodeURIComponent(slugs.join(","))}`, 60).catch(() => []),
   slugs: () => get<{ slug: string }[]>("/slugs", 3600),
+  changes: () =>
+    get<ChangeFeedItem[]>("/changes", 60),
   categories: () =>
     get<{ slug: string; name: string; _count: { tools: number } }[]>("/categories", 300),
   categoriesSafe: () =>

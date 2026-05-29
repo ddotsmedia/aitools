@@ -44,6 +44,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className="dark">
       <body className="flex min-h-screen flex-col bg-navy text-slate-100 antialiased">
         <Header
+          nav={[
+            { href: "/tools", label: "Browse" },
+            { href: "/changes", label: "Changes", badge: "Live" },
+            { href: "/compare", label: "Compare" },
+            { href: "/stack", label: "Stack Builder", badge: "AI" },
+            { href: "/saved", label: "Saved" },
+          ]}
           menus={menus}
           cta={
             <Link href="/tools">

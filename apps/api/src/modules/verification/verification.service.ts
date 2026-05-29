@@ -33,6 +33,15 @@ export class VerificationService {
     return { running: this.running, lastRunAt: this.lastRunAt, lastSummary: this.lastSummary };
   }
 
+  /** Recent verification change events (price/status/free-tier/content), newest first. */
+  recentChanges(limit = 60) {
+    return this.prisma.changeEvent.findMany({
+      orderBy: { createdAt: "desc" },
+      take: Math.min(Math.max(limit, 1), 200),
+      include: { tool: { select: { slug: true, name: true, logoUrl: true } } },
+    });
+  }
+
   // Twice a day.
   @Cron(CronExpression.EVERY_12_HOURS)
   async scheduled() {
