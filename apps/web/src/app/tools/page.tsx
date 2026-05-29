@@ -37,6 +37,18 @@ function toggle(sp: SP, key: string, value: string): string {
   return `/tools${qs ? `?${qs}` : ""}`;
 }
 
+/** Build a /tools href with one param set to a value (resets paging). */
+function setParam(sp: SP, key: string, value: string): string {
+  const next = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    const s = str(v);
+    if (s && k !== "page" && k !== key) next.set(k, s);
+  }
+  next.set(key, value);
+  const qs = next.toString();
+  return `/tools${qs ? `?${qs}` : ""}`;
+}
+
 function FacetGroup({
   title,
   sp,
@@ -99,12 +111,34 @@ export default async function BrowsePage({ searchParams }: { searchParams: Promi
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Browse AI tools</h1>
-        <p className="mt-1 text-slate-400">
-          {res.total} verified tool{res.total === 1 ? "" : "s"}
-          {str(sp.q) ? ` matching “${str(sp.q)}”` : ""}.
-        </p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Browse AI tools</h1>
+          <p className="mt-1 text-slate-400">
+            {res.total} verified tool{res.total === 1 ? "" : "s"}
+            {str(sp.q) ? ` matching “${str(sp.q)}”` : ""}.
+          </p>
+        </div>
+        <div className="flex items-center gap-1 text-sm">
+          <span className="text-slate-500">Sort:</span>
+          {[
+            { key: "popularity", label: "Popular" },
+            { key: "freshness", label: "Freshest" },
+          ].map((s) => {
+            const active = (str(sp.sort) ?? "popularity") === s.key;
+            return (
+              <Link
+                key={s.key}
+                href={setParam(sp, "sort", s.key)}
+                className={`rounded-lg px-2.5 py-1 transition-colors ${
+                  active ? "bg-teal/15 text-teal" : "text-slate-400 hover:bg-white/5"
+                }`}
+              >
+                {s.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[220px_1fr]">

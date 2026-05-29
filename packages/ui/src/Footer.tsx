@@ -16,7 +16,7 @@ const COLUMNS = [
     title: "Build",
     links: [
       { href: "/stack", label: "Stack Builder" },
-      { href: "/api",   label: "Public API" },
+      { href: "/developers", label: "Public API" },
       { href: "/mcp",   label: "MCP server catalog" },
     ],
   },

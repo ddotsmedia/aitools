@@ -225,11 +225,16 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
       {/* Alternatives */}
       {alternatives.length > 0 && (
         <section className="mt-10">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-xl font-semibold">Alternatives</h2>
-            <Link href={`/compare?tools=${[tool.slug, ...alternatives.slice(0, 2).map((a) => a.slug)].join(",")}`} className="text-sm text-teal hover:underline">
-              Compare →
-            </Link>
+            <div className="flex gap-3 text-sm">
+              <Link href={`/alternatives/${tool.slug}`} className="text-teal hover:underline">
+                See all →
+              </Link>
+              <Link href={`/compare?tools=${[tool.slug, ...alternatives.slice(0, 2).map((a) => a.slug)].join(",")}`} className="text-teal hover:underline">
+                Compare →
+              </Link>
+            </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {alternatives.map((d) => (
