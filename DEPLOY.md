@@ -6,7 +6,31 @@ Fully automated, idempotent deploy. Three scripts:
 |--------|-------|---------|
 | `infra/bootstrap.sh` | VPS, once | Install Docker/Nginx/Certbot, clone repo, scaffold env + nginx |
 | `deploy.sh` | VPS, every update | Pull → build → migrate → seed-if-empty → restart → health-check |
+| `update.sh` | VPS | Smart updater — redeploys ONLY when origin has new commits |
+| `infra/install-autodeploy.sh` | VPS, once | Install systemd timer → auto-deploy every push |
 | `deploy.ps1` | Windows dev | Validate → push → SSH-run `deploy.sh` on the VPS |
+
+## Fully automatic deploy (set-and-forget)
+
+Make every `git push` go live on its own — no manual step:
+
+```bash
+# on the VPS, once (after the stack is already deployed)
+cd /opt/aitools
+bash infra/install-autodeploy.sh 5        # check + redeploy every 5 minutes
+```
+
+A systemd timer runs `update.sh`, which fetches `origin/main`, and **only when there
+are new commits** runs the full `deploy.sh`. Idempotent, logged, single-flight.
+
+```bash
+systemctl status aitools-deploy.timer       # is it active?
+journalctl -u aitools-deploy.service -f     # live run output
+tail -f /var/log/aitools-deploy.log         # deploy history
+systemctl disable --now aitools-deploy.timer  # turn auto-deploy off
+```
+
+Run it once by hand any time: `bash update.sh` (or `bash update.sh --force`).
 
 ## First-time VPS setup
 
