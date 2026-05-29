@@ -68,49 +68,64 @@ export class VerificationService {
   }
 
   async verifyOne(id: string, url: string): Promise<{ reachable: boolean; changed: boolean }> {
-    const { reachable, contentHash, notes } = await this.probe(url);
+    const p = await this.probe(url);
 
     const prev = await this.prisma.verificationLog.findFirst({
       where: { toolId: id },
       orderBy: { createdAt: "desc" },
       select: { reachable: true, pricingHash: true },
     });
+    const prevTool = await this.prisma.tool.findUnique({
+      where: { id },
+      select: { freeTierReal: true },
+    });
 
     let changed = false;
     const events: { kind: string; summary: string }[] = [];
     if (prev) {
-      if (prev.reachable !== reachable) {
+      if (prev.reachable !== p.reachable) {
         changed = true;
-        events.push({ kind: "status", summary: reachable ? "Tool came back online" : "Tool became unreachable" });
+        events.push({ kind: "status", summary: p.reachable ? "Tool came back online" : "Tool became unreachable" });
       }
-      if (reachable && contentHash && prev.pricingHash && prev.pricingHash !== contentHash) {
+      if (p.reachable && p.pricingHash && prev.pricingHash && prev.pricingHash !== p.pricingHash) {
         changed = true;
-        events.push({ kind: "content", summary: "Homepage content changed (possible pricing/feature update)" });
+        events.push({ kind: "pricing", summary: "Pricing/plans page changed" });
       }
     }
+    // Free-tier verification: only flip when we could actually read a page
+    // (never assume). Emit an event when the verified state changes.
+    if (p.freeTier !== null && prevTool && prevTool.freeTierReal !== p.freeTier) {
+      changed = true;
+      events.push({
+        kind: "free_tier",
+        summary: p.freeTier ? "Verified a genuine free tier" : "Free tier no longer detected",
+      });
+    }
 
-    // Freshness: reachable -> high & fresh; unreachable -> decay.
-    const freshnessScore = reachable ? 100 : Math.max(10, 40);
+    const freshnessScore = p.reachable ? 100 : Math.max(10, 40);
 
     await this.prisma.$transaction([
       this.prisma.verificationLog.create({
-        data: { toolId: id, reachable, pricingHash: contentHash, notes },
+        data: { toolId: id, reachable: p.reachable, pricingHash: p.pricingHash, notes: p.notes },
       }),
       this.prisma.tool.update({
         where: { id },
-        data: { freshnessScore, lastVerifiedAt: new Date() },
+        data: {
+          freshnessScore,
+          lastVerifiedAt: new Date(),
+          ...(p.freeTier !== null ? { freeTierReal: p.freeTier } : {}),
+        },
       }),
       ...events.map((e) =>
         this.prisma.changeEvent.create({ data: { toolId: id, kind: e.kind, summary: e.summary } }),
       ),
     ]);
 
-    await this.search.indexOne(id); // refresh freshness in search
-
-    return { reachable, changed };
+    await this.search.indexOne(id);
+    return { reachable: p.reachable, changed };
   }
 
-  private async probe(url: string): Promise<{ reachable: boolean; contentHash: string | null; notes: string }> {
+  private async fetchText(url: string): Promise<{ status: number; text: string | null }> {
     try {
       const res = await fetch(url, {
         method: "GET",
@@ -118,24 +133,63 @@ export class VerificationService {
         headers: { "user-agent": "AIToolsHubBot/1.0 (+verification)" },
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       });
-      // The server responded — it's live. A 403/429 usually means bot
-      // protection (Cloudflare), NOT that the tool is down. Only a network/DNS
-      // failure (fetch throwing) counts as unreachable.
-      const reachable = true;
       const blocked = res.status === 403 || res.status === 429;
-      let contentHash: string | null = null;
-      if (!blocked) {
-        try {
-          const text = await res.text();
-          const normalized = text.replace(/\s+/g, " ").slice(0, 20_000);
-          contentHash = createHash("sha256").update(normalized).digest("hex").slice(0, 32);
-        } catch {
-          /* body read failed — still record reachability */
-        }
+      if (blocked || res.status >= 400) return { status: res.status, text: null };
+      try {
+        return { status: res.status, text: (await res.text()).replace(/\s+/g, " ").slice(0, 40_000) };
+      } catch {
+        return { status: res.status, text: null };
       }
-      return { reachable, contentHash, notes: blocked ? `HTTP ${res.status} (bot-protected)` : `HTTP ${res.status}` };
-    } catch (err) {
-      return { reachable: false, contentHash: null, notes: (err as Error).name || "fetch failed" };
+    } catch {
+      return { status: 0, text: null };
     }
+  }
+
+  /**
+   * Live status + real pricing tracking + machine-detected free tier.
+   * Fetches the homepage and the pricing/plans page; hashes the pricing page to
+   * detect changes; scans text for a genuine free-tier signal. Never bypasses
+   * bot protection — a plain GET only.
+   */
+  private async probe(url: string): Promise<{
+    reachable: boolean;
+    pricingHash: string | null;
+    freeTier: boolean | null;
+    notes: string;
+  }> {
+    const home = await this.fetchText(url);
+    // Network/DNS failure on the homepage = unreachable.
+    if (home.status === 0) return { reachable: false, pricingHash: null, freeTier: null, notes: "fetch failed" };
+
+    let origin = "";
+    try {
+      origin = new URL(url).origin;
+    } catch {
+      /* keep empty */
+    }
+    // Best-effort pricing page.
+    let pricing = { status: 0, text: null as string | null };
+    if (origin) {
+      pricing = await this.fetchText(`${origin}/pricing`);
+      if (pricing.status >= 400 || pricing.status === 0) pricing = await this.fetchText(`${origin}/plans`);
+    }
+
+    const combined = `${home.text ?? ""} ${pricing.text ?? ""}`.toLowerCase();
+    const hashBasis = pricing.text ?? home.text;
+    const pricingHash = hashBasis ? createHash("sha256").update(hashBasis).digest("hex").slice(0, 32) : null;
+
+    // free-tier signal — require "free" with a plan/no-card qualifier to limit false positives.
+    let freeTier: boolean | null = null;
+    if (home.text || pricing.text) {
+      freeTier =
+        /\bfree (plan|tier|forever|version|account)\b/.test(combined) ||
+        /\b(start|get started|sign up|try) (it )?(for )?free\b/.test(combined) ||
+        /\bno credit card\b/.test(combined) ||
+        /\$0(\.00)?\b/.test(combined) ||
+        /\bfree to (use|start|try)\b/.test(combined);
+    }
+
+    const note = home.status === 403 || home.status === 429 ? `HTTP ${home.status} (bot-protected)` : `HTTP ${home.status}`;
+    return { reachable: true, pricingHash, freeTier, notes: note };
   }
 }
