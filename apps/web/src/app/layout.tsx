@@ -14,9 +14,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="flex min-h-screen flex-col">
-        <Header cta={<Button size="sm">Get started</Button>} />
+    <html lang="en" className="dark">
+      <body className="flex min-h-screen flex-col bg-navy text-slate-100 antialiased">
+        <Header
+          cta={
+            <Button size="sm" variant="primary">
+              Browse tools
+            </Button>
+          }
+        />
         <div className="flex-1">{children}</div>
         <Footer />
       </body>

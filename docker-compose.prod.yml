@@ -1,0 +1,113 @@
+# AI Tools Hub — Production Compose
+# Ports: web=3020  api=4020  ai=8020  pg=5442  redis=6383  meili=7720
+# Redis uses 6383 (not 6382 — conflicts with crm-redis on VPS)
+services:
+
+  # ── Infra ────────────────────────────────────────────────────────────────────
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5442:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redisdata:/data
+    ports:
+      - "127.0.0.1:6383:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      MEILI_ENV: production
+    volumes:
+      - meilidata:/meili_data
+    ports:
+      - "127.0.0.1:7720:7700"
+
+  # ── Applications ─────────────────────────────────────────────────────────────
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: redis://redis:6379
+      MEILI_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      AI_SERVICE_URL: http://ai:8020
+      PORT: "4020"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:4020:4020"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4020/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ai:
+    build:
+      context: apps/ai
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8020:8020"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3020"
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "0.0.0.0:3020:3020"
+
+volumes:
+  pgdata:
+  redisdata:
+  meilidata:

@@ -1,5 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-:root { color-scheme: dark; }
-body { @apply bg-navy text-slate-100 antialiased; }
+
+:root {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-navy text-slate-100 antialiased;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection */
+::selection {
+  background-color: rgba(42, 154, 164, 0.3);
+  color: #e2e8f0;
+}
+
+/* Focus ring — accessible, brand-coloured */
+:focus-visible {
+  outline: 2px solid rgba(42, 154, 164, 0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }

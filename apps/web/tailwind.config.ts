@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss";
 // Ddotsmedia four-dot brand identity.
 export default {
   content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -11,6 +12,8 @@ export default {
         amber: "#ef7e1a",   // orange dot
         leaf:  "#3fae57",   // green dot
       },
+      borderOpacity: { "8": "0.08" },
+      backgroundOpacity: { "3": "0.03", "4": "0.04" },
     },
   },
   plugins: [],
