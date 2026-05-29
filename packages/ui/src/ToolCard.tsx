@@ -41,7 +41,13 @@ function FreshnessArc({ score }: { score: number }) {
           strokeDasharray={c} strokeDashoffset={c - (pct / 100) * c}
         />
       </svg>
-      <span className="absolute font-mono text-[10px] font-medium tabular-nums text-slate-300">{pct}</span>
+      {pct >= 100 ? (
+        <svg viewBox="0 0 20 20" className="absolute h-3 w-3" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 10.5 8.5 14 15 6.5" />
+        </svg>
+      ) : (
+        <span className="absolute font-mono text-[10px] font-medium tabular-nums text-slate-300">{pct}</span>
+      )}
     </div>
   );
 }
