@@ -17,14 +17,16 @@ export function VerifiedFreeBadge({ lastVerifiedAt, className, ...props }: Verif
     <span
       title={title}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full bg-leaf/15 px-2.5 py-0.5 text-xs font-semibold text-leaf ring-1 ring-inset ring-leaf/40",
+        "inline-flex items-center gap-1 rounded-full bg-leaf px-2 py-0.5 text-[11px] font-semibold text-navy shadow-sm shadow-leaf/30",
         className,
       )}
       {...props}
     >
-      <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 fill-current" aria-hidden="true">
-        <path d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 0 1 1.4-1.4l3.3 3.3 6.8-6.8a1 1 0 0 1 1.4 0Z" />
-      </svg>
+      <span className="grid h-3.5 w-3.5 place-items-center rounded-full bg-navy/20">
+        <svg viewBox="0 0 20 20" className="h-2.5 w-2.5 fill-current" aria-hidden="true">
+          <path d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 0 1 1.4-1.4l3.3 3.3 6.8-6.8a1 1 0 0 1 1.4 0Z" />
+        </svg>
+      </span>
       Verified Free
     </span>
   );

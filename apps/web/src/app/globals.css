@@ -43,6 +43,11 @@
 /* Glowing counter */
 .counter-glow { text-shadow: 0 0 18px rgba(42, 154, 164, 0.55), 0 0 40px rgba(42, 154, 164, 0.25); }
 
+.tool-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 14px 34px -14px var(--accent), 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-grid::before { animation: none; }
   .word-swap { animation: none; }
