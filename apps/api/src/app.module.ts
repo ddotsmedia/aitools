@@ -4,6 +4,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { ToolsModule } from "./modules/tools/tools.module";
 import { EnrichmentModule } from "./modules/enrichment/enrichment.module";
 import { TaxonomyModule } from "./modules/taxonomy/taxonomy.module";
+import { HealthController } from "./health.controller";
 // P3+: SearchModule, ReviewsModule, VerificationModule
 @Module({
   imports: [
@@ -13,5 +14,6 @@ import { TaxonomyModule } from "./modules/taxonomy/taxonomy.module";
     EnrichmentModule,
     TaxonomyModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}
