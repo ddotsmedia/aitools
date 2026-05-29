@@ -160,6 +160,20 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
         </span>
       </div>
 
+      {/* Live website preview (screenshot) */}
+      <section className="mt-6">
+        <a href={tool.websiteUrl} target="_blank" rel="noopener noreferrer nofollow" className="block">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`https://image.thum.io/get/width/1200/crop/750/${tool.websiteUrl}`}
+            alt={`${tool.name} website preview`}
+            loading="lazy"
+            className="aspect-[16/10] w-full rounded-2xl border border-white/10 object-cover object-top"
+          />
+        </a>
+        <p className="mt-1 text-xs text-slate-500">Live preview of {tool.websiteUrl}</p>
+      </section>
+
       {/* TL;DR */}
       <section className="mt-8">
         <h2 className="text-xl font-semibold">TL;DR</h2>

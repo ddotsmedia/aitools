@@ -21,8 +21,9 @@ const CATEGORIES = [
 
 export default async function Home() {
   // Real "freshly verified" feed + live totals from the API.
-  const [fresh, cats] = await Promise.all([
+  const [fresh, recent, cats] = await Promise.all([
     api.search("?sort=freshness&take=6").catch(() => ({ items: [], total: 0 })),
+    api.search("?sort=new&take=6").catch(() => ({ items: [], total: 0 })),
     api.categories().catch(() => []),
   ]);
   const STATS = [
@@ -148,6 +149,26 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      {/* ── Recently added ────────────────────────────────────────────────── */}
+      {recent.items.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
+          <div className="mb-6 flex items-end justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-100">Recently added</h2>
+              <p className="mt-1 text-sm text-slate-500">Newest verified tools in the directory</p>
+            </div>
+            <Link href="/tools?sort=new" className="text-sm text-teal hover:underline transition-colors">
+              See all new →
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {recent.items.map((d) => (
+              <ToolCard key={d.id} tool={docToSummary(d)} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Trust / verification callout ──────────────────────────────────── */}
       <section className="border-t border-white/8 bg-white/3">

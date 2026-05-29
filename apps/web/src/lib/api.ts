@@ -115,6 +115,7 @@ export const api = {
     get<CompareTool[]>(`/compare?tools=${encodeURIComponent(slugs.join(","))}`, 60),
   compareSafe: (slugs: string[]) =>
     get<CompareTool[]>(`/compare?tools=${encodeURIComponent(slugs.join(","))}`, 60).catch(() => []),
+  slugs: () => get<{ slug: string }[]>("/slugs", 3600),
   categories: () =>
     get<{ slug: string; name: string; _count: { tools: number } }[]>("/categories", 300),
   categoriesSafe: () =>

@@ -18,6 +18,7 @@ export interface ToolDoc {
   tags: string[]; // slugs
   freshnessScore: number;
   popularity: number;
+  createdAt: number; // epoch ms — for "newest" sort
   logoUrl?: string | null;
 }
 
@@ -33,7 +34,7 @@ const FILTERABLE = [
   "categories",
   "tags",
 ];
-const SORTABLE = ["popularity", "freshnessScore"];
+const SORTABLE = ["popularity", "freshnessScore", "createdAt"];
 const SEARCHABLE = ["name", "tagline", "description", "categoryNames", "tags"];
 
 /**

@@ -22,11 +22,16 @@ export class SearchController {
       freeTierReal: bool(q.freeTierReal ?? q.free),
       hasApi: bool(q.hasApi ?? q.api),
       isOpenSource: bool(q.isOpenSource ?? q.oss),
-      sort: q.sort === "freshness" ? "freshness" : "popularity",
+      sort: q.sort === "freshness" ? "freshness" : q.sort === "new" ? "new" : "popularity",
       take: q.take ? Number(q.take) : undefined,
       skip: q.skip ? Number(q.skip) : undefined,
     };
     return this.search.search(params);
+  }
+
+  @Get("slugs")
+  slugs() {
+    return this.search.allPublishedSlugs();
   }
 
   @Get("compare")

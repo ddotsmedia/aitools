@@ -123,6 +123,7 @@ export default async function BrowsePage({ searchParams }: { searchParams: Promi
           <span className="text-slate-500">Sort:</span>
           {[
             { key: "popularity", label: "Popular" },
+            { key: "new", label: "Newest" },
             { key: "freshness", label: "Freshest" },
           ].map((s) => {
             const active = (str(sp.sort) ?? "popularity") === s.key;

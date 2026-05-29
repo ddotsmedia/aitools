@@ -20,7 +20,7 @@ export interface SearchParams {
   freeTierReal?: boolean;
   hasApi?: boolean;
   isOpenSource?: boolean;
-  sort?: "popularity" | "freshness";
+  sort?: "popularity" | "freshness" | "new";
   take?: number;
   skip?: number;
 }
@@ -72,6 +72,7 @@ export class SearchService implements OnModuleInit {
       tags: t.tags.map((tag) => tag.slug),
       freshnessScore: t.freshnessScore,
       popularity: t.popularity,
+      createdAt: t.createdAt.getTime(),
       logoUrl: t.logoUrl,
     };
   }
@@ -96,6 +97,15 @@ export class SearchService implements OnModuleInit {
 
   removeFromIndex(id: string) {
     return this.meili.remove(id);
+  }
+
+  /** All published slugs — for the sitemap. */
+  allPublishedSlugs() {
+    return this.prisma.tool.findMany({
+      where: { status: ToolStatus.PUBLISHED },
+      select: { slug: true },
+      orderBy: { popularity: "desc" },
+    });
   }
 
   /** Side-by-side data for 2–4 tools (preserves requested order). */
@@ -133,7 +143,12 @@ export class SearchService implements OnModuleInit {
   async search(p: SearchParams) {
     const take = Math.min(Math.max(p.take ?? 24, 1), 60);
     const skip = Math.max(p.skip ?? 0, 0);
-    const sort = p.sort === "freshness" ? ["freshnessScore:desc"] : ["popularity:desc"];
+    const sort =
+      p.sort === "freshness"
+        ? ["freshnessScore:desc"]
+        : p.sort === "new"
+          ? ["createdAt:desc"]
+          : ["popularity:desc"];
 
     if (this.meili.isReady()) {
       try {
@@ -184,7 +199,12 @@ export class SearchService implements OnModuleInit {
       this.prisma.tool.findMany({
         where,
         include: WITH_TAXO,
-        orderBy: p.sort === "freshness" ? { freshnessScore: "desc" } : { popularity: "desc" },
+        orderBy:
+          p.sort === "freshness"
+            ? { freshnessScore: "desc" }
+            : p.sort === "new"
+              ? { createdAt: "desc" }
+              : { popularity: "desc" },
         take,
         skip,
       }),
