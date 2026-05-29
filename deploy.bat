@@ -14,8 +14,8 @@ REM ============================================================================
 setlocal enabledelayedexpansion
 
 REM ---- CONFIG -----------------------------------------------------------------
-REM Put your VPS IP in the quotes below, e.g.  set "DEPLOY_HOST=203.0.113.10"
-if not defined DEPLOY_HOST set "DEPLOY_HOST="
+REM VPS IP baked in. Override anytime with env var DEPLOY_HOST.
+if not defined DEPLOY_HOST set "DEPLOY_HOST=194.164.151.202"
 if not defined DEPLOY_USER set "DEPLOY_USER=root"
 set "APP_DIR=/opt/aitools"
 set "BRANCH=main"
