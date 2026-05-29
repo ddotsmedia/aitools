@@ -82,6 +82,7 @@ export class SearchService implements OnModuleInit {
       where: { status: ToolStatus.PUBLISHED },
       include: WITH_TAXO,
     });
+    await this.meili.clear(); // drop stale docs (e.g. purged/unpublished tools)
     await this.meili.upsert(tools.map(SearchService.toDoc));
     return tools.length;
   }

@@ -88,6 +88,14 @@ export class MeiliService {
     }
   }
 
+  async clear(): Promise<void> {
+    try {
+      await this.index().deleteAllDocuments();
+    } catch (err) {
+      this.log.warn(`Meili clear failed: ${(err as Error).message}`);
+    }
+  }
+
   async remove(id: string): Promise<void> {
     try {
       await this.index().deleteDocument(id);

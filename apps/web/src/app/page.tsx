@@ -1,53 +1,8 @@
 import Link from "next/link";
-import type { ToolSummary } from "@hub/types";
 import { Button, Badge, VerifiedFreeBadge, ToolCard } from "@hub/ui";
+import { api, docToSummary } from "@/lib/api";
 
-// P1 sample data — replaced by API feed in P3
-const SAMPLE: ToolSummary[] = [
-  {
-    id: "1", slug: "whisper-arabic", name: "Whisper Arabic",
-    tagline: "Transcribe Arabic meetings with full dialect support.",
-    pricingModel: "OPEN_SOURCE", freeTierReal: true, freshnessScore: 92,
-    categories: ["Transcription"], tags: ["arabic", "speech"],
-  },
-  {
-    id: "2", slug: "stackgen", name: "StackGen",
-    tagline: "Describe a goal — get a wired, tested multi-tool stack.",
-    pricingModel: "FREEMIUM", freeTierReal: true, freshnessScore: 68,
-    categories: ["Productivity"], tags: ["agents"],
-  },
-  {
-    id: "3", slug: "pixelforge", name: "PixelForge",
-    tagline: "Brand-consistent image generation at enterprise scale.",
-    pricingModel: "SUBSCRIPTION", freeTierReal: false, freshnessScore: 34,
-    categories: ["Image"], tags: ["design"],
-  },
-  {
-    id: "4", slug: "claritydoc", name: "ClarityDoc",
-    tagline: "Turn dense PDFs into structured summaries instantly.",
-    pricingModel: "FREEMIUM", freeTierReal: true, freshnessScore: 81,
-    categories: ["Writing"], tags: ["documents", "summarisation"],
-  },
-  {
-    id: "5", slug: "voicelab", name: "VoiceLab",
-    tagline: "Clone any voice in 60 seconds. 30 languages supported.",
-    pricingModel: "USAGE_BASED", freeTierReal: true, freshnessScore: 77,
-    categories: ["Audio"], tags: ["tts", "voice"],
-  },
-  {
-    id: "6", slug: "codepilot", name: "CodePilot",
-    tagline: "AI pair-programmer that understands your whole codebase.",
-    pricingModel: "FREEMIUM", freeTierReal: true, freshnessScore: 95,
-    categories: ["Code"], tags: ["developer", "copilot"],
-  },
-];
-
-const STATS = [
-  { value: "2,400+", label: "Verified tools" },
-  { value: "48",     label: "Categories" },
-  { value: "Daily",  label: "Re-verification" },
-  { value: "100%",   label: "Pricing checked" },
-];
+export const revalidate = 60;
 
 const CATEGORIES = [
   { slug: "writing",       label: "Writing",        emoji: "✍️" },
@@ -64,7 +19,19 @@ const CATEGORIES = [
   { slug: "security",      label: "Security",       emoji: "🔒" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  // Real "freshly verified" feed + live totals from the API.
+  const [fresh, cats] = await Promise.all([
+    api.search("?sort=freshness&take=6").catch(() => ({ items: [], total: 0 })),
+    api.categories().catch(() => []),
+  ]);
+  const STATS = [
+    { value: `${fresh.total || 0}`, label: "Verified tools" },
+    { value: `${cats.length || 0}`, label: "Categories" },
+    { value: "Daily", label: "Re-verification" },
+    { value: "100%", label: "Pricing checked" },
+  ];
+
   return (
     <main>
 
@@ -176,8 +143,8 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {SAMPLE.map((t) => (
-            <ToolCard key={t.id} tool={t} />
+          {fresh.items.map((d) => (
+            <ToolCard key={d.id} tool={docToSummary(d)} />
           ))}
         </div>
       </section>
