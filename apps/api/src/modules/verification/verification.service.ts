@@ -118,16 +118,22 @@ export class VerificationService {
         headers: { "user-agent": "AIToolsHubBot/1.0 (+verification)" },
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       });
-      const reachable = res.status < 400;
+      // The server responded — it's live. A 403/429 usually means bot
+      // protection (Cloudflare), NOT that the tool is down. Only a network/DNS
+      // failure (fetch throwing) counts as unreachable.
+      const reachable = true;
+      const blocked = res.status === 403 || res.status === 429;
       let contentHash: string | null = null;
-      try {
-        const text = await res.text();
-        const normalized = text.replace(/\s+/g, " ").slice(0, 20_000);
-        contentHash = createHash("sha256").update(normalized).digest("hex").slice(0, 32);
-      } catch {
-        /* body read failed — still record reachability */
+      if (!blocked) {
+        try {
+          const text = await res.text();
+          const normalized = text.replace(/\s+/g, " ").slice(0, 20_000);
+          contentHash = createHash("sha256").update(normalized).digest("hex").slice(0, 32);
+        } catch {
+          /* body read failed — still record reachability */
+        }
       }
-      return { reachable, contentHash, notes: `HTTP ${res.status}` };
+      return { reachable, contentHash, notes: blocked ? `HTTP ${res.status} (bot-protected)` : `HTTP ${res.status}` };
     } catch (err) {
       return { reachable: false, contentHash: null, notes: (err as Error).name || "fetch failed" };
     }
