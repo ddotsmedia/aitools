@@ -31,7 +31,7 @@ export async function generateMetadata({
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const name = (await categoryName(slug)) ?? slug;
-  const res = await api.search(`?category=${slug}&take=48`);
+  const res = await api.searchSafe(`?category=${slug}&take=48`);
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">

@@ -162,11 +162,16 @@ hard_replace() {
     | xargs -r docker rm -f >/dev/null 2>&1 || true
 }
 
-info "Replacing app containers (api, ai, web)…"
-hard_replace api ai web
-$COMPOSE up -d api ai web
-
+# Replace api/ai FIRST and wait until healthy, so the (still-running) old web keeps
+# serving until the new api is ready — minimises the SSR error window during deploys.
+info "Replacing api + ai…"
+hard_replace api ai
+$COMPOSE up -d api ai
 wait_healthy api 30 && ok "api healthy" || warn "api health unknown — check logs"
+
+info "Replacing web…"
+hard_replace web
+$COMPOSE up -d web
 wait_healthy web 20 && ok "web running" || warn "web not confirmed — check logs"
 
 # ── 8. Prune dangling images ──────────────────────────────────────────────────

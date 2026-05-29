@@ -36,7 +36,7 @@ export default async function AlternativesPage({ params }: { params: Promise<{ s
   if (!tool) notFound();
 
   const cat = tool.categories[0]?.slug;
-  const res = cat ? await api.search(`?category=${cat}&take=24`) : { items: [] };
+  const res = cat ? await api.searchSafe(`?category=${cat}&take=24`) : { items: [] };
   const alts = res.items.filter((d) => d.slug !== tool.slug).slice(0, 12);
 
   const ld = {

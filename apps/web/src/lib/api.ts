@@ -89,12 +89,20 @@ export function docToSummary(d: ToolDoc): ToolSummary {
   };
 }
 
+const EMPTY_SEARCH: SearchResult = { items: [], total: 0, facets: {}, engine: "db" };
+
 export const api = {
   search: (qs = "") => get<SearchResult>(`/search${qs}`, 30),
+  /** Never throws — returns an empty result if the API is briefly unreachable (e.g. mid-deploy). */
+  searchSafe: (qs = "") => get<SearchResult>(`/search${qs}`, 30).catch(() => EMPTY_SEARCH),
   getTool: (slug: string) => get<ApiTool>(`/tools/${slug}`, 60),
   compare: (slugs: string[]) =>
     get<CompareTool[]>(`/compare?tools=${encodeURIComponent(slugs.join(","))}`, 60),
+  compareSafe: (slugs: string[]) =>
+    get<CompareTool[]>(`/compare?tools=${encodeURIComponent(slugs.join(","))}`, 60).catch(() => []),
   categories: () =>
     get<{ slug: string; name: string; _count: { tools: number } }[]>("/categories", 300),
+  categoriesSafe: () =>
+    get<{ slug: string; name: string; _count: { tools: number } }[]>("/categories", 300).catch(() => []),
   tags: () => get<{ slug: string; name: string; _count: { tools: number } }[]>("/tags", 300),
 };

@@ -26,7 +26,7 @@ function yes(b: boolean) {
 export default async function ComparePage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const slugs = (str(sp.tools) ?? "").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 4);
-  const tools: CompareTool[] = slugs.length >= 1 ? await api.compare(slugs) : [];
+  const tools: CompareTool[] = slugs.length >= 1 ? await api.compareSafe(slugs) : [];
 
   if (tools.length < 2) {
     return (

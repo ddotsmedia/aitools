@@ -99,7 +99,7 @@ export default async function BrowsePage({ searchParams }: { searchParams: Promi
   qs.set("take", String(TAKE));
   qs.set("skip", String((page - 1) * TAKE));
 
-  const res = await api.search(`?${qs.toString()}`);
+  const res = await api.searchSafe(`?${qs.toString()}`);
   const facets: FacetDistribution = res.facets ?? {};
   const totalPages = Math.max(1, Math.ceil(res.total / TAKE));
 
