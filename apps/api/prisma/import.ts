@@ -41,21 +41,30 @@ function domain(url: string): string {
   }
 }
 function pricing(v: unknown): PricingModel {
-  const s = String(v ?? "").toUpperCase();
+  let s = String(v ?? "").toUpperCase().replace(/[\s-]+/g, "_");
+  if (s === "OSS") s = "OPEN_SOURCE";
   return (Object.values(PricingModel) as string[]).includes(s) ? (s as PricingModel) : PricingModel.FREEMIUM;
 }
 
+// Accepts both the compact schema (url/free/api/oss/desc) and the verbose one
+// (website/has_free_tier/has_api/is_open_source/description/slug).
 interface Row {
   name: string;
-  url: string;
+  slug?: string;
+  url?: string;
+  website?: string;
   category: string;
   pricing?: string;
   free?: boolean;
+  has_free_tier?: boolean;
   api?: boolean;
+  has_api?: boolean;
   oss?: boolean;
+  is_open_source?: boolean;
   tags?: string[];
   tagline?: string;
   desc?: string;
+  description?: string;
   languages?: string[];
 }
 
@@ -65,28 +74,33 @@ async function main() {
     console.error("Usage: pnpm --filter @hub/api db:import <file.json>");
     process.exit(1);
   }
-  const rows = JSON.parse(readFileSync(file, "utf8")) as Row[];
-  if (!Array.isArray(rows)) throw new Error("JSON root must be an array");
+  const raw = JSON.parse(readFileSync(file, "utf8")) as Row[] | { tools: Row[] };
+  const rows: Row[] = Array.isArray(raw) ? raw : (raw.tools ?? []);
+  if (!Array.isArray(rows)) throw new Error("JSON must be an array or { tools: [] }");
 
   let ok = 0;
   let skipped = 0;
   for (const r of rows) {
-    if (!r.name || !r.url || !r.category) {
+    const url = r.url ?? r.website;
+    if (!r.name || !url || !r.category) {
       skipped++;
       continue;
     }
-    const slug = slugify(r.name);
-    const d = domain(r.url);
+    const slug = slugify(r.slug ?? r.name);
+    const d = domain(url);
+    const free = r.free ?? r.has_free_tier ?? false;
+    const api = r.api ?? r.has_api ?? false;
+    const oss = r.oss ?? r.is_open_source ?? false;
     const data = {
       name: r.name,
-      tagline: r.tagline ?? `${r.name} — ${r.category.toLowerCase()} AI tool`,
-      description: r.desc ?? `${r.name} is a ${r.category.toLowerCase()} AI tool.`,
-      websiteUrl: r.url,
+      tagline: r.tagline ?? r.description ?? `${r.name} — ${r.category} tool`,
+      description: r.desc ?? r.description ?? `${r.name} is a ${r.category} tool.`,
+      websiteUrl: url,
       logoUrl: d ? `https://www.google.com/s2/favicons?domain=${d}&sz=128` : null,
       pricingModel: pricing(r.pricing),
-      freeTierReal: r.free ?? false,
-      hasApi: r.api ?? false,
-      isOpenSource: r.oss ?? false,
+      freeTierReal: free,
+      hasApi: api,
+      isOpenSource: oss,
       status: ToolStatus.PUBLISHED,
       categories: {
         set: [],
@@ -103,7 +117,7 @@ async function main() {
       create: {
         ...data,
         slug,
-        platforms: ["web", ...(r.api ? ["api"] : [])],
+        platforms: ["web", ...(api ? ["api"] : [])],
         languages: r.languages ?? ["en"],
         regions: ["GLOBAL"],
         freshnessScore: 60,
