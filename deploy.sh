@@ -25,7 +25,8 @@
 set -euo pipefail
 
 # ── Config ────────────────────────────────────────────────────────────────────
-APP_DIR="${APP_DIR:-/opt/ai-tools-hub}"
+# Default to the directory this script lives in — works wherever the repo is cloned.
+APP_DIR="${APP_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 COMPOSE_FILE="docker-compose.prod.yml"
 ENV_FILE=".env.production"
 BRANCH="main"
