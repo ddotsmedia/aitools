@@ -142,7 +142,28 @@ else
 fi
 
 # ── 7. Apps up + wait healthy ─────────────────────────────────────────────────
-info "Starting apps (api, ai, web)…"
+# Some hosts (shared/virtualised runc) deny `docker stop`, so `compose up`
+# can't recreate changed containers. Force-replace: kill host PID, rm, recreate.
+hard_replace() {
+  for svc in "$@"; do
+    local cid; cid="$($COMPOSE ps -q "$svc" 2>/dev/null)"
+    [ -n "$cid" ] || continue
+    docker update --restart=no "$cid" >/dev/null 2>&1 || true
+    if ! docker stop -t 10 "$cid" >/dev/null 2>&1; then
+      local pid; pid="$(docker inspect -f '{{.State.Pid}}' "$cid" 2>/dev/null || echo 0)"
+      [ -n "$pid" ] && [ "$pid" != "0" ] && kill -9 "$pid" 2>/dev/null || true
+      sleep 2
+    fi
+    docker rm -f "$cid" >/dev/null 2>&1 || true
+  done
+  # remove any renamed leftovers compose created during a failed recreate
+  docker ps -a --format '{{.Names}}' \
+    | grep -E "_(aitools|ai-tools-hub)-(web|api|ai)-[0-9]+$" \
+    | xargs -r docker rm -f >/dev/null 2>&1 || true
+}
+
+info "Replacing app containers (api, ai, web)…"
+hard_replace api ai web
 $COMPOSE up -d api ai web
 
 wait_healthy api 30 && ok "api healthy" || warn "api health unknown — check logs"
