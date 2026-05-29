@@ -48,9 +48,17 @@
   box-shadow: 0 14px 34px -14px var(--accent), 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
+/* Nav: staggered mobile overlay links + submit micro-bounce */
+@keyframes nav-stagger { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.nav-stagger { animation: nav-stagger 0.45s both cubic-bezier(0.22, 1, 0.36, 1); }
+@keyframes submit-bounce { 0%,100% { transform: translateY(0); } 35% { transform: translateY(-3px); } 65% { transform: translateY(-1px); } }
+.submit-pill:hover { animation: submit-bounce 0.5s; }
+
 @media (prefers-reduced-motion: reduce) {
   .hero-grid::before { animation: none; }
   .word-swap { animation: none; }
+  .nav-stagger { animation: none; }
+  .submit-pill:hover { animation: none; }
 }
 
 body {
