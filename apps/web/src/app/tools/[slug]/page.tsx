@@ -135,8 +135,8 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <h1 className="text-3xl font-bold">{tool.name}</h1>
-          <p className="mt-1 text-lg text-slate-300">{tool.tagline}</p>
+          <h1 className="text-2xl font-bold sm:text-3xl">{tool.name}</h1>
+          <p className="mt-1 text-base text-slate-300 sm:text-lg">{tool.tagline}</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge tone="teal">{PRICING_LABEL[tool.pricingModel]}</Badge>
             {tool.freeTierReal && <VerifiedFreeBadge lastVerifiedAt={tool.lastVerifiedAt} />}
@@ -144,8 +144,8 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
             {tool.isOpenSource && <Badge tone="leaf">Open source</Badge>}
           </div>
         </div>
-        <a href={tool.websiteUrl} target="_blank" rel="noopener noreferrer nofollow">
-          <Button>Visit site ↗</Button>
+        <a href={tool.websiteUrl} target="_blank" rel="noopener noreferrer nofollow" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto">Visit site ↗</Button>
         </a>
       </header>
 
@@ -184,8 +184,8 @@ export default async function ToolPage({ params }: { params: Promise<{ slug: str
       {tool.pricingTiers && tool.pricingTiers.length > 0 && (
         <section className="mt-8">
           <h2 className="mb-3 text-xl font-semibold">Pricing</h2>
-          <div className="overflow-hidden rounded-2xl border border-white/10">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-white/10">
+            <table className="w-full min-w-[480px] text-sm">
               <thead className="bg-white/5 text-left text-slate-400">
                 <tr>
                   <th className="px-4 py-2 font-medium">Plan</th>

@@ -11,6 +11,7 @@ body {
   @apply bg-navy text-slate-100 antialiased;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* guard against horizontal scroll on mobile */
 }
 
 /* Selection */
