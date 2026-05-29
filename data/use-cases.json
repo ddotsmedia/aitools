@@ -1,0 +1,22 @@
+[
+  { "slug": "write-a-business-plan", "title": "Write a business plan", "description": "Draft, structure, and polish a business plan with AI.", "categories": ["writing", "productivity", "research"] },
+  { "slug": "build-a-chatbot", "title": "Build a chatbot", "description": "Create AI chatbots and agents for your site or product.", "categories": ["chatbots", "ai-agents", "customer-support"] },
+  { "slug": "transcribe-meetings", "title": "Transcribe meetings", "description": "Record, transcribe, and summarize meetings automatically.", "categories": ["transcription", "productivity"] },
+  { "slug": "generate-images", "title": "Generate images", "description": "Create art, graphics, and product visuals with AI.", "categories": ["image", "design"] },
+  { "slug": "edit-videos", "title": "Edit videos", "description": "Generate, edit, and repurpose video with AI.", "categories": ["video"] },
+  { "slug": "build-a-website", "title": "Build a website", "description": "Launch a website fast with AI builders.", "categories": ["website-builders", "no-code"] },
+  { "slug": "automate-email", "title": "Automate email", "description": "Draft, triage, and automate email with AI.", "categories": ["productivity", "ai-agents", "marketing"] },
+  { "slug": "analyze-data", "title": "Analyze data", "description": "Chat with datasets and build insights with AI.", "categories": ["data-analytics", "research"] },
+  { "slug": "create-presentations", "title": "Create presentations", "description": "Turn ideas into polished decks with AI.", "categories": ["presentation", "productivity"] },
+  { "slug": "hire-faster", "title": "Hire faster", "description": "Source, screen, and interview candidates with AI.", "categories": ["hr-recruitment"] },
+  { "slug": "manage-social-media", "title": "Manage social media", "description": "Create, schedule, and grow social with AI.", "categories": ["social-media", "marketing"] },
+  { "slug": "write-code", "title": "Write code", "description": "Ship faster with AI coding assistants and agents.", "categories": ["code", "developer-tools"] },
+  { "slug": "translate-content", "title": "Translate content", "description": "Translate and localize content with AI.", "categories": ["translation"] },
+  { "slug": "generate-logos", "title": "Generate logos", "description": "Design logos and brand identities with AI.", "categories": ["logo-design", "design"] },
+  { "slug": "find-leads", "title": "Find leads", "description": "Prospect, enrich, and reach leads with AI.", "categories": ["sales-crm", "marketing"] },
+  { "slug": "write-legal-docs", "title": "Write legal documents", "description": "Draft and review contracts and legal docs with AI.", "categories": ["legal", "writing"] },
+  { "slug": "build-an-app", "title": "Build an app", "description": "Build mobile and web apps with AI, no code needed.", "categories": ["app-builders", "no-code", "code"] },
+  { "slug": "track-competitors", "title": "Track competitors", "description": "Monitor competitors and the market with AI.", "categories": ["seo", "data-analytics", "research"] },
+  { "slug": "generate-music", "title": "Generate music", "description": "Create songs, tracks, and audio with AI.", "categories": ["audio"] },
+  { "slug": "design-ui", "title": "Design UI", "description": "Design interfaces and prototypes with AI.", "categories": ["ui-ux-design", "design"] }
+]
