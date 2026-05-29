@@ -1,0 +1,7 @@
+[
+  { "slug": "ai-assistants", "label": "AI Assistants", "emoji": "🤝", "description": "General-purpose conversational AI assistants and copilots." },
+  { "slug": "presentation", "label": "Presentation", "emoji": "📊", "description": "AI tools that generate slides, decks, and presentations." },
+  { "slug": "spreadsheet-data", "label": "Spreadsheet & Data", "emoji": "🧮", "description": "AI inside spreadsheets and tools to analyze tabular data." },
+  { "slug": "no-code", "label": "No-Code", "emoji": "🧩", "description": "Build websites and apps with AI, no coding required." },
+  { "slug": "arabic-nlp", "label": "Arabic NLP", "emoji": "🇦🇪", "description": "Arabic-first language models and natural-language processing tools." }
+]
