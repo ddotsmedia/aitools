@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, PricingModel, ToolStatus } from "@prisma/client";
 import { PrismaService } from "../../prisma/prisma.service";
+import { SearchService } from "../search/search.service";
 import { slugify } from "../../common/slug";
 import { SubmitToolDto, UpdateToolDto, ListToolsQuery } from "./dto";
 
@@ -12,7 +13,10 @@ const TOOL_INCLUDE = {
 
 @Injectable()
 export class ToolsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly search: SearchService,
+  ) {}
 
   /** Public submission → lands in PENDING for enrichment + moderation. */
   async submit(dto: SubmitToolDto) {
@@ -34,7 +38,7 @@ export class ToolsService {
   async update(id: string, dto: UpdateToolDto) {
     await this.mustExist(id);
     const { categories, tags, ...rest } = dto;
-    return this.prisma.tool.update({
+    const tool = await this.prisma.tool.update({
       where: { id },
       data: {
         ...rest,
@@ -43,25 +47,31 @@ export class ToolsService {
       },
       include: TOOL_INCLUDE,
     });
+    await this.search.indexOne(id); // refresh index for published tools
+    return tool;
   }
 
-  /** Moderation transitions. */
+  /** Moderation transitions. Sync the search index on every change. */
   async approve(id: string) {
     await this.mustExist(id);
-    return this.prisma.tool.update({
+    const tool = await this.prisma.tool.update({
       where: { id },
       data: { status: ToolStatus.PUBLISHED },
       include: TOOL_INCLUDE,
     });
+    await this.search.indexOne(id); // now searchable
+    return tool;
   }
 
   async reject(id: string) {
     await this.mustExist(id);
-    return this.prisma.tool.update({
+    const tool = await this.prisma.tool.update({
       where: { id },
       data: { status: ToolStatus.REJECTED },
       include: TOOL_INCLUDE,
     });
+    await this.search.removeFromIndex(id);
+    return tool;
   }
 
   async list(query: ListToolsQuery) {
