@@ -23,7 +23,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   if (label) {
     const res = await api.searchSafe(`?category=${catSlug}&take=1`);
     return {
-      title: `${label} AI Tools — AI Tools Hub`,
+      title: { absolute: `${label} AI Tools — AI Tools Hub` },
       description: `Discover ${res.total} verified AI ${label.toLowerCase()} tools. Compare pricing, free tiers, and features.`,
       alternates: { canonical: `/tools?category=${catSlug}` },
     };
