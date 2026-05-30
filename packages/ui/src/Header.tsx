@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn } from "./cn";
 import { Logo } from "./Logo";
+import { useLang, t } from "./i18n";
 
 export interface NavItem { href: string; label: string; badge?: string }
 export interface NavMenuItem { href: string; label: string; hint?: string }
@@ -29,6 +30,8 @@ export function Header({ nav = PRIMARY_NAV, menus = [], cta, activePath, classNa
   const [openMenu, setOpenMenu] = React.useState<string | null>(null);
   const [scrolled, setScrolled] = React.useState(false);
   const navRef = React.useRef<HTMLElement | null>(null);
+  const { lang } = useLang();
+  const navLabel = (item: NavItem) => t(lang, "nav", item.href, item.label);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -90,7 +93,7 @@ export function Header({ nav = PRIMARY_NAV, menus = [], cta, activePath, classNa
                 aria-current={active ? "page" : undefined}
               >
                 {isStack(item.label) && <Sparkle />}
-                {item.label}
+                {navLabel(item)}
                 {item.badge && !isStack(item.label) && (
                   <span className="rounded-full bg-teal/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal">{item.badge}</span>
                 )}
@@ -140,7 +143,7 @@ export function Header({ nav = PRIMARY_NAV, menus = [], cta, activePath, classNa
             href="/submit"
             className="submit-pill hidden rounded-full border border-teal/40 bg-teal/10 px-4 py-1.5 text-sm font-semibold text-teal transition-colors hover:bg-teal/20 lg:inline-block"
           >
-            Submit tool
+            {t(lang, "nav", "/submit", "Submit tool")}
           </a>
           {cta}
           <button
@@ -181,7 +184,7 @@ export function Header({ nav = PRIMARY_NAV, menus = [], cta, activePath, classNa
                 style={{ animationDelay: `${i * 55}ms` }}
               >
                 {isStack(item.label) && <Sparkle />}
-                {item.label}
+                {navLabel(item)}
                 {item.badge && !isStack(item.label) && (
                   <span className="rounded-full bg-teal/20 px-2 py-0.5 text-xs font-semibold text-teal">{item.badge}</span>
                 )}
@@ -209,7 +212,7 @@ export function Header({ nav = PRIMARY_NAV, menus = [], cta, activePath, classNa
               className="nav-stagger mt-6 rounded-full border border-teal/40 bg-teal/10 px-5 py-3 text-center text-base font-semibold text-teal"
               style={{ animationDelay: `${(nav.length + menus.length) * 55}ms` }}
             >
-              Submit a tool
+              {t(lang, "nav", "/submit", "Submit tool")}
             </a>
           </nav>
         </div>

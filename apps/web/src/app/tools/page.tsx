@@ -3,15 +3,37 @@ import Link from "next/link";
 import { Badge, ToolCard } from "@hub/ui";
 import { api, docToSummary, type FacetDistribution } from "@/lib/api";
 
-export const metadata: Metadata = {
-  title: "Browse AI tools",
-  description: "Filter verified AI tools by category, pricing, real free tier, API, and open source.",
-  alternates: { canonical: "/tools" },
-};
 export const dynamic = "force-dynamic";
 
 type SP = Record<string, string | string[] | undefined>;
 const str = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://milestonm.ae";
+
+async function categoryLabel(slug?: string): Promise<string | null> {
+  if (!slug) return null;
+  const cats = await api.categories().catch(() => []);
+  return cats.find((c) => c.slug === slug)?.name ?? null;
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<SP> }): Promise<Metadata> {
+  const sp = await searchParams;
+  const catSlug = str(sp.category);
+  const label = await categoryLabel(catSlug);
+  if (label) {
+    const res = await api.searchSafe(`?category=${catSlug}&take=1`);
+    return {
+      title: `${label} AI Tools — AI Tools Hub`,
+      description: `Discover ${res.total} verified AI ${label.toLowerCase()} tools. Compare pricing, free tiers, and features.`,
+      alternates: { canonical: `/tools?category=${catSlug}` },
+    };
+  }
+  return {
+    title: "Browse AI tools",
+    description: "Filter verified AI tools by category, pricing, real free tier, API, and open source.",
+    alternates: { canonical: "/tools" },
+  };
+}
 
 const PRICING_LABEL: Record<string, string> = {
   FREE: "Free",
@@ -103,6 +125,24 @@ export default async function BrowsePage({ searchParams }: { searchParams: Promi
   const facets: FacetDistribution = res.facets ?? {};
   const totalPages = Math.max(1, Math.ceil(res.total / TAKE));
 
+  const catSlug = str(sp.category);
+  const catLabel = await categoryLabel(catSlug);
+  const heading = catLabel ? `Best AI ${catLabel} Tools (2026)` : "Browse AI tools";
+  const ld = catLabel
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `Best AI ${catLabel} Tools`,
+        numberOfItems: Math.min(res.items.length, 10),
+        itemListElement: res.items.slice(0, 10).map((d, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `${SITE}/tools/${d.slug}`,
+          name: d.name,
+        })),
+      }
+    : null;
+
   const boolToggles: { key: string; label: string; facetKey: string }[] = [
     { key: "free", label: "Verified free tier", facetKey: "freeTierReal" },
     { key: "api", label: "Has API", facetKey: "hasApi" },
@@ -111,9 +151,10 @@ export default async function BrowsePage({ searchParams }: { searchParams: Promi
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      {ld && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />}
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Browse AI tools</h1>
+          <h1 className="text-3xl font-bold">{heading}</h1>
           <p className="mt-1 text-slate-400">
             {res.total} verified tool{res.total === 1 ? "" : "s"}
             {str(sp.q) ? ` matching “${str(sp.q)}”` : ""}.

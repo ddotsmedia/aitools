@@ -10,3 +10,4 @@ export { Header, type HeaderProps, type NavItem, type NavMenu, type NavMenuItem 
 export { Footer } from "./Footer";
 export { ToolCard, type ToolCardProps } from "./ToolCard";
 export { CompareProvider, CompareBar, CompareCheckbox } from "./Compare";
+export { LangProvider, LangSwitcher, TText, useLang, t, type Lang } from "./i18n";

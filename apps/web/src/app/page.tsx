@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button, Badge, VerifiedFreeBadge } from "@hub/ui";
+import { Button, Badge, VerifiedFreeBadge, TText } from "@hub/ui";
 import { api } from "@/lib/api";
 import { Hero } from "@/components/Hero";
 import { ToolOfTheDay } from "@/components/ToolOfTheDay";
@@ -53,7 +53,7 @@ export default async function Home() {
             >
               <span className="text-2xl" aria-hidden="true">{EMOJI[c.slug] ?? "🧩"}</span>
               <span className="min-w-0">
-                <span className="block truncate text-sm font-medium text-slate-200 group-hover:text-teal">{c.name}</span>
+                <span className="block truncate text-sm font-medium text-slate-200 group-hover:text-teal"><TText ns="cat" k={c.slug} fallback={c.name} /></span>
                 <span className="text-xs text-slate-500">{c._count.tools} tools</span>
               </span>
             </Link>

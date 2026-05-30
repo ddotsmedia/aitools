@@ -1,6 +1,8 @@
+"use client";
 import * as React from "react";
 import { cn } from "./cn";
 import { Logo } from "./Logo";
+import { useLang, t } from "./i18n";
 
 const COLUMNS = [
   {
@@ -41,6 +43,7 @@ const COLUMNS = [
 ];
 
 export function Footer({ className, ...props }: React.HTMLAttributes<HTMLElement>) {
+  const { lang } = useLang();
   return (
     <footer className={cn("border-t border-white/10 bg-navy", className)} {...props}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-14">
@@ -71,7 +74,7 @@ export function Footer({ className, ...props }: React.HTMLAttributes<HTMLElement
           {COLUMNS.map((col) => (
             <div key={col.title}>
               <h4 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-                {col.title}
+                {t(lang, "footer", col.title, col.title)}
               </h4>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (

@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@hub/ui";
+import { Button, useLang, t } from "@hub/ui";
 
-const WORDS = ["job", "task", "problem", "workflow"];
+const WORDS_EN = ["job", "task", "problem", "workflow"];
+const WORDS_AR = ["مهمة", "عمل", "مشكلة", "سير عمل"];
 const POPULAR = ["ChatGPT alternatives", "Free image AI", "Arabic voice tools", "Code assistants"];
 
 function useCountUp(target: number, ms = 1200): number {
@@ -39,9 +40,11 @@ function Counter({ value, label, suffix = "" }: { value: number; label: string; 
 export function Hero({ total, categories }: { total: number; categories: number }) {
   const [wi, setWi] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { lang } = useLang();
+  const words = lang === "ar" ? WORDS_AR : WORDS_EN;
 
   useEffect(() => {
-    const id = setInterval(() => setWi((v) => (v + 1) % WORDS.length), 2200);
+    const id = setInterval(() => setWi((v) => (v + 1) % 4), 2200);
     return () => clearInterval(id);
   }, []);
 
@@ -66,19 +69,15 @@ export function Hero({ total, categories }: { total: number; categories: number 
 
         {/* Headline with cycling word */}
         <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-slate-50 sm:text-6xl md:text-7xl">
-          Find the right AI tool
-          <br />
-          for every{" "}
+          {t(lang, "hero", "pre", "Find the right AI tool for every")}{" "}
           <span className="relative inline-block text-teal">
-            <span key={wi} className="word-swap inline-block">{WORDS[wi]}</span>
-            <span className="invisible" aria-hidden="true">workflow</span>
+            <span key={wi} className="word-swap inline-block">{words[wi]}</span>
             <span className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-teal to-sun" />
           </span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
-          Describe what you need — get a verified, working tool stack. Every listing checked for
-          live status, real pricing, and genuine free tiers.
+          {t(lang, "hero", "sub", "Describe what you need — get a verified, working tool stack. Every listing checked for live status, real pricing, and genuine free tiers.")}
         </p>
 
         {/* Command-palette search */}
