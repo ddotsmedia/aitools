@@ -88,7 +88,6 @@ async function main() {
     }
     const slug = slugify(r.slug ?? r.name);
     const d = domain(url);
-    const free = r.free ?? r.has_free_tier ?? false;
     const api = r.api ?? r.has_api ?? false;
     const oss = r.oss ?? r.is_open_source ?? false;
     const data = {
@@ -98,7 +97,8 @@ async function main() {
       websiteUrl: url,
       logoUrl: d ? `https://www.google.com/s2/favicons?domain=${d}&sz=128` : null,
       pricingModel: pricing(r.pricing),
-      freeTierReal: free,
+      // freeTierReal is EARNED by the verification engine (machine-detected),
+      // never asserted from import data. Imports start unverified.
       hasApi: api,
       isOpenSource: oss,
       status: ToolStatus.PUBLISHED,
@@ -120,9 +120,10 @@ async function main() {
         platforms: ["web", ...(api ? ["api"] : [])],
         languages: r.languages ?? ["en"],
         regions: ["GLOBAL"],
-        freshnessScore: 60,
+        // Unverified until the verification engine runs a real check.
+        freshnessScore: 0,
         popularity: 100,
-        lastVerifiedAt: new Date(),
+        lastVerifiedAt: null,
         categories: { connectOrCreate: data.categories.connectOrCreate },
         tags: { connectOrCreate: data.tags.connectOrCreate },
       },

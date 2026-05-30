@@ -48,7 +48,7 @@ export class VerificationService {
     await this.runAll().catch((e) => this.log.error(`Verification run failed: ${e.message}`));
   }
 
-  async runAll(limit = 1000): Promise<{ checked: number; reachable: number; changed: number }> {
+  async runAll(limit = 10000): Promise<{ checked: number; reachable: number; changed: number }> {
     if (this.running) return this.lastSummary ?? { checked: 0, reachable: 0, changed: 0 };
     this.running = true;
     const summary = { checked: 0, reachable: 0, changed: 0 };
