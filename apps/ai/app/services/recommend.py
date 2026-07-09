@@ -1,26 +1,16 @@
-"""P4 Stack Builder: goal -> ranked multi-tool stack + integration notes.
-
-Uses Sonnet (model routing for task->stack) when a key is set; otherwise a
-deterministic keyword-overlap heuristic over the live catalog. Either way it
-only ever recommends tools that exist in the catalog.
+"""P4 Stack Builder: goal -> ranked multi-tool stack.
+Tries Gemini Flash (free) -> Anthropic (paid) -> heuristic fallback.
 """
 from __future__ import annotations
-
-import json
-import os
-import re
+import json, os, re
 from typing import Any
-
 import httpx
-
-from .router import pick
 
 API_URL = os.getenv("API_URL", "http://localhost:4020")
 STOP = set(
     "the a an and or to for of in on with my our we i need want help me then build using use "
     "into from at by is are be that this it tool tools ai app create make get".split()
 )
-
 
 def _catalog(limit: int = 300) -> list[dict[str, Any]]:
     try:
@@ -32,10 +22,8 @@ def _catalog(limit: int = 300) -> list[dict[str, Any]]:
         pass
     return []
 
-
 def _tokens(text: str) -> list[str]:
     return [w for w in re.findall(r"[a-z0-9]+", text.lower()) if w not in STOP and len(w) > 2]
-
 
 def _heuristic(goal: str, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     gtok = set(_tokens(goal))
@@ -43,8 +31,7 @@ def _heuristic(goal: str, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for t in items:
         hay = " ".join(
             [t.get("name", ""), t.get("tagline", ""), t.get("description", "")]
-            + t.get("categoryNames", [])
-            + t.get("tags", [])
+            + t.get("categoryNames", []) + t.get("tags", [])
         ).lower()
         htok = set(_tokens(hay))
         overlap = len(gtok & htok)
@@ -52,7 +39,6 @@ def _heuristic(goal: str, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if overlap > 0:
             scored.append((score, t))
     scored.sort(key=lambda x: x[0], reverse=True)
-
     picked: list[dict[str, Any]] = []
     per_cat: dict[str, int] = {}
     for _, t in scored:
@@ -65,75 +51,105 @@ def _heuristic(goal: str, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
             break
     if not picked:
         picked = sorted(items, key=lambda t: t.get("freshnessScore", 0), reverse=True)[:3]
-
     return [
-        {
-            "slug": t["slug"],
-            "name": t["name"],
-            "tagline": t.get("tagline", ""),
-            "category": (t.get("categoryNames") or [""])[0],
-            "role": (t.get("categoryNames") or ["Tool"])[0],
-            "why": t.get("tagline", "") or "Relevant to your goal.",
-        }
+        {"slug": t["slug"], "name": t["name"], "tagline": t.get("tagline", ""),
+         "category": (t.get("categoryNames") or [""])[0],
+         "role": (t.get("categoryNames") or ["Tool"])[0],
+         "why": t.get("tagline", "") or "Relevant to your goal."}
         for t in picked
     ]
 
-
-def _with_claude(goal: str, items: list[dict[str, Any]], api_key: str) -> list[dict[str, Any]] | None:
+def _build_prompt(goal: str, items: list[dict[str, Any]]) -> str:
     compact = [
         {"slug": t["slug"], "name": t["name"], "cat": (t.get("categoryNames") or [""])[0], "tagline": t.get("tagline", "")}
         for t in items
     ]
-    prompt = (
+    return (
         f"User goal: {goal}\n\n"
         f"Catalog (JSON): {json.dumps(compact)[:12000]}\n\n"
         "Pick 3-5 tools from the catalog that together accomplish the goal as a stack. "
-        "Use ONLY slugs from the catalog. Return STRICT JSON: "
+        "Use ONLY slugs from the catalog. Return STRICT JSON only, no markdown: "
         '{"stack":[{"slug":"...","role":"short role","why":"one sentence"}]}.'
     )
+
+def _parse_response(raw: str, items: list[dict[str, Any]]) -> list[dict[str, Any]] | None:
+    by_slug = {t["slug"]: t for t in items}
+    m = re.search(r"\{.*\}", raw, re.S)
+    if not m:
+        return None
+    data = json.loads(m.group(0))
+    out = []
+    for s in data.get("stack", []):
+        t = by_slug.get(s.get("slug"))
+        if not t:
+            continue
+        out.append({
+            "slug": t["slug"], "name": t["name"], "tagline": t.get("tagline", ""),
+            "category": (t.get("categoryNames") or [""])[0],
+            "role": s.get("role") or (t.get("categoryNames") or ["Tool"])[0],
+            "why": s.get("why") or t.get("tagline", ""),
+        })
+    return out or None
+
+def _with_gemini(goal: str, items: list[dict[str, Any]], api_key: str) -> list[dict[str, Any]] | None:
+    prompt = _build_prompt(goal, items)
+    try:
+        with httpx.Client(timeout=30.0) as c:
+            r = c.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}",
+                json={
+                    "contents": [{"parts": [{"text": "You assemble verified AI tool stacks. JSON only. Never invent slugs.\n\n" + prompt}]}],
+                    "generationConfig": {"temperature": 0.3, "maxOutputTokens": 800},
+                },
+            )
+            if r.status_code != 200:
+                return None
+            data = r.json()
+            raw = data["candidates"][0]["content"]["parts"][0]["text"]
+            return _parse_response(raw, items)
+    except Exception:
+        return None
+
+def _with_claude(goal: str, items: list[dict[str, Any]], api_key: str) -> list[dict[str, Any]] | None:
+    prompt = _build_prompt(goal, items)
     try:
         import anthropic
-
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
-            model=pick("task_to_stack"),  # Sonnet
+            model="claude-sonnet-4-6",
             max_tokens=800,
             system="You assemble verified AI tool stacks. JSON only. Never invent slugs.",
             messages=[{"role": "user", "content": prompt}],
         )
         raw = "".join(b.text for b in msg.content if getattr(b, "type", None) == "text")
-        m = re.search(r"\{.*\}", raw, re.S)
-        data = json.loads(m.group(0)) if m else {}
-        by_slug = {t["slug"]: t for t in items}
-        out = []
-        for s in data.get("stack", []):
-            t = by_slug.get(s.get("slug"))
-            if not t:
-                continue
-            out.append({
-                "slug": t["slug"],
-                "name": t["name"],
-                "tagline": t.get("tagline", ""),
-                "category": (t.get("categoryNames") or [""])[0],
-                "role": s.get("role") or (t.get("categoryNames") or ["Tool"])[0],
-                "why": s.get("why") or t.get("tagline", ""),
-            })
-        return out or None
+        return _parse_response(raw, items)
     except Exception:
         return None
 
-
 def recommend(goal: str) -> dict[str, Any]:
     items = _catalog()
-    api_key = os.getenv("ANTHROPIC_API_KEY", "")
     stack = None
     engine = "heuristic"
-    if api_key and not api_key.startswith("sk-ant-..."):
-        stack = _with_claude(goal, items, api_key)
+
+    # Try Gemini first (free)
+    gemini_key = os.getenv("GEMINI_API_KEY", "")
+    if gemini_key:
+        stack = _with_gemini(goal, items, gemini_key)
         if stack:
-            engine = "claude"
+            engine = "gemini"
+
+    # Try Anthropic if Gemini failed
+    if not stack:
+        api_key = os.getenv("ANTHROPIC_API_KEY", "")
+        if api_key and not api_key.startswith("sk-ant-..."):
+            stack = _with_claude(goal, items, api_key)
+            if stack:
+                engine = "claude"
+
+    # Fallback to heuristic
     if not stack:
         stack = _heuristic(goal, items)
+
     notes = (
         "Suggested stack based on your goal. Connect tools via their APIs or exports; "
         "start with the free tiers, then upgrade the pieces you rely on."
