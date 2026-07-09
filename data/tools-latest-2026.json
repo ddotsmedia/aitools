@@ -1,0 +1,307 @@
+[
+  {
+    "name": "ChatGPT Atlas",
+    "url": "https://openai.com/index/introducing-chatgpt-atlas/",
+    "category": "Search",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": false,
+    "oss": false,
+    "tags": [
+      "agents",
+      "search",
+      "assistant"
+    ],
+    "tagline": "OpenAI's agentic web browser.",
+    "desc": "ChatGPT Atlas is OpenAI's web browser with ChatGPT built in, including an agent mode that can browse and act on pages for you. Free to use with a ChatGPT account; agent features need a paid plan.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Perplexity Comet",
+    "url": "https://www.perplexity.ai/comet",
+    "category": "Search",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": false,
+    "oss": false,
+    "tags": [
+      "search",
+      "agents",
+      "rag"
+    ],
+    "tagline": "AI browser from Perplexity.",
+    "desc": "Comet is Perplexity's agentic browser that turns search into answers and can carry out multi-step tasks across tabs. Free tier available, with more agent usage on Pro/Max.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Nano Banana",
+    "url": "https://deepmind.google/models/gemini-image/",
+    "category": "Image",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": true,
+    "oss": false,
+    "tags": [
+      "image-gen",
+      "multimodal",
+      "api"
+    ],
+    "tagline": "Google's Gemini image model.",
+    "desc": "Nano Banana is the nickname for Google's Gemini native image generation and editing model, known for strong character consistency and conversational edits. Available in the Gemini app and via API.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Seedream",
+    "url": "https://www.volcengine.com/product/seedream",
+    "category": "Image",
+    "pricing": "USAGE_BASED",
+    "free": false,
+    "api": true,
+    "oss": false,
+    "tags": [
+      "image-gen",
+      "api",
+      "multimodal"
+    ],
+    "tagline": "ByteDance text-to-image model.",
+    "desc": "Seedream is ByteDance's high-resolution text-to-image and image-editing model with strong bilingual (English/Chinese) text rendering, offered through Volcengine and partner APIs.",
+    "languages": [
+      "en",
+      "zh"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Seedance",
+    "url": "https://www.volcengine.com/product/seedance",
+    "category": "Video",
+    "pricing": "USAGE_BASED",
+    "free": false,
+    "api": true,
+    "oss": false,
+    "tags": [
+      "video",
+      "api",
+      "multimodal"
+    ],
+    "tagline": "ByteDance text/image-to-video model.",
+    "desc": "Seedance is ByteDance's video generation model producing multi-shot, motion-consistent clips from text or images, available via Volcengine and aggregator APIs.",
+    "languages": [
+      "en",
+      "zh"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "MiniMax",
+    "url": "https://www.minimax.io",
+    "category": "Chatbots",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": true,
+    "oss": true,
+    "tags": [
+      "llm",
+      "multimodal",
+      "api"
+    ],
+    "tagline": "Multimodal model family and agent.",
+    "desc": "MiniMax builds frontier LLMs (incl. open-weight MiniMax-M models), plus the MiniMax Agent and Hailuo media tools, available through chat apps and a unified API.",
+    "languages": [
+      "en",
+      "zh"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Opus Clip",
+    "url": "https://www.opus.pro",
+    "category": "Video",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": false,
+    "oss": false,
+    "tags": [
+      "video",
+      "marketing"
+    ],
+    "tagline": "Long video into viral short clips.",
+    "desc": "Opus Clip uses AI to cut long-form videos and podcasts into ranked short clips with captions and reframing for TikTok, Reels, and Shorts. Free tier with watermarked exports.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "PlayAI",
+    "url": "https://play.ai",
+    "category": "Audio",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": true,
+    "oss": false,
+    "tags": [
+      "tts",
+      "voice",
+      "api"
+    ],
+    "tagline": "Lifelike text-to-speech and voice agents.",
+    "desc": "PlayAI (formerly PlayHT) offers natural text-to-speech, voice cloning, and conversational voice agents via a developer API, with a free starter tier.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Fish Audio",
+    "url": "https://fish.audio",
+    "category": "Audio",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": true,
+    "oss": true,
+    "tags": [
+      "tts",
+      "voice",
+      "open-source",
+      "api"
+    ],
+    "tagline": "Open text-to-speech and voice cloning.",
+    "desc": "Fish Audio provides multilingual text-to-speech and instant voice cloning, backed by open-weight models (OpenAudio/Fish-Speech) and a hosted API with a free tier.",
+    "languages": [
+      "en",
+      "zh"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Supermaven",
+    "url": "https://supermaven.com",
+    "category": "Code",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": false,
+    "oss": false,
+    "tags": [
+      "coding",
+      "copilot"
+    ],
+    "tagline": "Fast long-context code completion.",
+    "desc": "Supermaven is a low-latency AI code completion plugin with a very large context window across major editors. Free tier available; the team joined Cursor.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Raycast AI",
+    "url": "https://www.raycast.com/ai",
+    "category": "Productivity",
+    "pricing": "FREEMIUM",
+    "free": true,
+    "api": false,
+    "oss": false,
+    "tags": [
+      "assistant",
+      "productivity"
+    ],
+    "tagline": "AI inside the Raycast launcher.",
+    "desc": "Raycast AI brings chat, quick AI commands, and multiple frontier models into the Raycast launcher for macOS and Windows, with a free tier and paid Pro models.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Mem0",
+    "url": "https://mem0.ai",
+    "category": "Developer Tools",
+    "pricing": "OPEN_SOURCE",
+    "free": true,
+    "api": true,
+    "oss": true,
+    "tags": [
+      "rag",
+      "agents",
+      "open-source",
+      "api"
+    ],
+    "tagline": "Memory layer for AI agents.",
+    "desc": "Mem0 is an open-source memory layer that gives LLM apps and agents persistent, personalized long-term memory, available self-hosted or as a managed platform.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Letta",
+    "url": "https://www.letta.com",
+    "category": "AI Agents",
+    "pricing": "OPEN_SOURCE",
+    "free": true,
+    "api": true,
+    "oss": true,
+    "tags": [
+      "agents",
+      "open-source",
+      "rag",
+      "api"
+    ],
+    "tagline": "Stateful agents with long-term memory.",
+    "desc": "Letta (from the MemGPT team) is an open-source framework and cloud for building stateful agents that retain memory across sessions, with an Agent Development Environment.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "AutoGen",
+    "url": "https://microsoft.github.io/autogen/",
+    "category": "Developer Tools",
+    "pricing": "OPEN_SOURCE",
+    "free": true,
+    "api": true,
+    "oss": true,
+    "tags": [
+      "agents",
+      "open-source",
+      "multimodal"
+    ],
+    "tagline": "Microsoft multi-agent framework.",
+    "desc": "AutoGen is Microsoft's open-source framework for building multi-agent applications where LLM agents collaborate and use tools to solve tasks. Free and open source.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  },
+  {
+    "name": "Abacus AI",
+    "url": "https://abacus.ai",
+    "category": "Data & Analytics",
+    "pricing": "SUBSCRIPTION",
+    "free": false,
+    "api": true,
+    "oss": false,
+    "tags": [
+      "llm",
+      "agents",
+      "enterprise",
+      "api"
+    ],
+    "tagline": "AI platform and ChatLLM super-assistant.",
+    "desc": "Abacus AI offers an enterprise platform for building AI agents and ML systems, plus ChatLLM/DeepAgent that route across many frontier models in one subscription.",
+    "languages": [
+      "en"
+    ],
+    "source": "latest-2026"
+  }
+]
