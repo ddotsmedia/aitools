@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { ToolSource, PricingModel } from "@prisma/client";
+import { ToolSource, PricingModel, ToolStatus } from "@prisma/client";
 import { slugify } from "../../common/slug";
 
 interface ScrapedTool {
@@ -203,6 +203,7 @@ export class ScraperService {
             tagline: "", // will be enriched
             description: tool.description,
             pricingModel: PricingModel.FREEMIUM, // default, will be corrected via enrichment
+            status: ToolStatus.PENDING,
             source: tool.source,
             scrapedMetadata: tool.metadata as never,
           },

@@ -2,9 +2,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@hub/ui";
-import { API_BASE } from "@/lib/api";
+import { API_BASE, type ApiTool } from "@/lib/api";
 
-export function AdminActions({ id }: { id: string }) {
+export function AdminActions({ id, tool, onEdit }: { id: string; tool?: ApiTool; onEdit?: () => void }) {
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -20,6 +20,11 @@ export function AdminActions({ id }: { id: string }) {
 
   return (
     <div className="flex gap-2">
+      {onEdit && (
+        <Button size="sm" variant="outline" disabled={!!busy} onClick={onEdit}>
+          Edit
+        </Button>
+      )}
       <Button size="sm" variant="outline" disabled={!!busy} onClick={() => act("enrich")}>
         {busy === "enrich" ? "…" : "AI enrich"}
       </Button>

@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { ToolsService } from "./tools.service";
 import { EnrichmentService } from "../enrichment/enrichment.service";
-import { SubmitToolDto, UpdateToolDto, ListToolsQuery } from "./dto";
+import { SubmitToolDto, UpdateToolDto, ListToolsQuery, BulkActionDto } from "./dto";
 
 @Controller("tools")
 export class ToolsController {
@@ -58,5 +58,23 @@ export class ToolsController {
   @Post(":id/reject")
   reject(@Param("id") id: string) {
     return this.tools.reject(id);
+  }
+
+  /** Admin: Bulk approve tools */
+  @Post("bulk-approve")
+  bulkApprove(@Body() dto: BulkActionDto) {
+    return this.tools.bulkApprove(dto.ids);
+  }
+
+  /** Admin: Bulk reject tools */
+  @Post("bulk-reject")
+  bulkReject(@Body() dto: BulkActionDto) {
+    return this.tools.bulkReject(dto.ids);
+  }
+
+  /** Admin: Get analytics dashboard data */
+  @Get("admin/analytics")
+  analytics() {
+    return this.tools.getAnalytics();
   }
 }

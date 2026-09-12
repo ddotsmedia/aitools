@@ -8,6 +8,7 @@ import {
   IsUrl,
   Max,
   Min,
+  IsISO8601,
 } from "class-validator";
 import { PricingModel } from "@prisma/client";
 
@@ -44,4 +45,11 @@ export class ListToolsQuery {
   @IsOptional() @IsBoolean() freeTierReal?: boolean;
   @IsOptional() @IsInt() @Min(1) @Max(100) take?: number;
   @IsOptional() @IsInt() @Min(0) skip?: number;
+  @IsOptional() @IsISO8601() dateFrom?: string; // filter tools created after this date
+  @IsOptional() @IsISO8601() dateTo?: string; // filter tools created before this date
+  @IsOptional() @IsString() sort?: string; // created|updated|popularity|freshness; default created
+}
+
+export class BulkActionDto {
+  @IsArray() @IsString({ each: true }) ids!: string[];
 }

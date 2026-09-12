@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { Badge, Card } from "@hub/ui";
 import { API_BASE, type ToolList } from "@/lib/api";
-import { AdminActions } from "@/components/AdminActions";
+import { AdminPageClient } from "@/components/AdminPageClient";
 
 export const metadata: Metadata = { title: "Moderation", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
-async function pending(): Promise<ToolList> {
-  const res = await fetch(`${API_BASE}/tools?status=PENDING&take=100`, { cache: "no-store" });
+async function pending(params: URLSearchParams): Promise<ToolList> {
+  const res = await fetch(`${API_BASE}/tools?status=PENDING&take=100&${params.toString()}`, {
+    cache: "no-store",
+  });
   if (!res.ok) return { items: [], total: 0 };
   return res.json();
 }
@@ -27,47 +29,41 @@ function getSourceBadge(source?: string) {
   return <Badge tone={colors[source || "USER_SUBMITTED"] || "neutral"}>{label[source || "USER_SUBMITTED"]}</Badge>;
 }
 
-export default async function AdminPage() {
-  const { items, total } = await pending();
+interface AdminPageProps {
+  searchParams?: Promise<Record<string, string | string[]>>;
+}
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
+  const params = searchParams ? await searchParams : {};
+  const urlParams = new URLSearchParams();
+
+  if (params.q) urlParams.set("q", params.q as string);
+  if (params.source) urlParams.set("source", params.source as string);
+  if (params.dateFrom) urlParams.set("dateFrom", params.dateFrom as string);
+  if (params.dateTo) urlParams.set("dateTo", params.dateTo as string);
+  if (params.sort) urlParams.set("sort", params.sort as string);
+
+  const { items, total } = await pending(urlParams);
+
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
+    <main className="mx-auto max-w-6xl px-6 py-12 pb-24">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Moderation queue</h1>
-        <Badge tone="sun">{total} pending</Badge>
+        <div>
+          <h1 className="text-3xl font-bold">Moderation queue</h1>
+          <div className="flex gap-4 items-center mt-2">
+            <a href="/admin/dashboard" className="text-sm text-teal hover:underline">
+              View Dashboard
+            </a>
+            <span className="text-sm text-slate-400">{total} pending</span>
+          </div>
+        </div>
+        <Badge tone="sun">{total} total</Badge>
       </div>
       <p className="mb-6 text-sm text-slate-500">
-        Scraped tools appear daily. Enrich fields, then approve to publish.
+        Scraped tools appear daily. Use filters to find tools, edit details, enrich with AI, then bulk approve or reject.
       </p>
 
-      {items.length === 0 ? (
-        <Card>
-          <p className="text-slate-400">Queue empty.</p>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {items.map((t) => (
-            <Card key={t.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-slate-50">{t.name}</span>
-                  {getSourceBadge((t as any).source)}
-                  <Badge tone="neutral">{t.pricingModel}</Badge>
-                  {t.categories.map((c) => (
-                    <Badge key={c.slug} tone="teal">{c.name}</Badge>
-                  ))}
-                </div>
-                <p className="mt-1 truncate text-sm text-slate-400">
-                  {t.tagline || <span className="italic text-slate-600">no tagline — run enrich</span>}
-                </p>
-                <a href={t.websiteUrl} className="text-xs text-teal hover:underline" rel="noreferrer" target="_blank">
-                  {t.websiteUrl}
-                </a>
-              </div>
-              <AdminActions id={t.id} />
-            </Card>
-          ))}
-        </div>
-      )}
+      <AdminPageClient items={items} total={total} getSourceBadge={getSourceBadge} />
     </main>
   );
 }
