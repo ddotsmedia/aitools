@@ -32,6 +32,13 @@ enum UserRole {
   ADMIN
 }
 
+enum ToolSource {
+  USER_SUBMITTED
+  PRODUCT_HUNT
+  GITHUB_TRENDING
+  HACKERNEWS
+}
+
 model Tool {
   id             String        @id @default(cuid())
   slug           String        @unique
@@ -41,6 +48,8 @@ model Tool {
   websiteUrl     String
   logoUrl        String?
   status         ToolStatus    @default(PENDING)
+  source         ToolSource    @default(USER_SUBMITTED)
+  scrapedMetadata Json?        // API-specific data (e.g., Product Hunt ID, GitHub stars)
   pricingModel   PricingModel
   freeTierReal   Boolean       @default(false) // verified no-card
   hasApi         Boolean       @default(false)

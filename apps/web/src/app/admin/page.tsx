@@ -12,6 +12,21 @@ async function pending(): Promise<ToolList> {
   return res.json();
 }
 
+function getSourceBadge(source?: string) {
+  const colors: Record<string, "sun" | "teal" | "neutral"> = {
+    PRODUCT_HUNT: "sun",
+    GITHUB_TRENDING: "neutral",
+    HACKERNEWS: "neutral",
+  };
+  const label: Record<string, string> = {
+    PRODUCT_HUNT: "PH",
+    GITHUB_TRENDING: "GitHub",
+    HACKERNEWS: "HN",
+    USER_SUBMITTED: "User",
+  };
+  return <Badge tone={colors[source || "USER_SUBMITTED"] || "neutral"}>{label[source || "USER_SUBMITTED"]}</Badge>;
+}
+
 export default async function AdminPage() {
   const { items, total } = await pending();
   return (
@@ -21,20 +36,21 @@ export default async function AdminPage() {
         <Badge tone="sun">{total} pending</Badge>
       </div>
       <p className="mb-6 text-sm text-slate-500">
-        P7 will gate this behind admin auth. Enrich drafts fields, then approve to publish.
+        Scraped tools appear daily. Enrich fields, then approve to publish.
       </p>
 
       {items.length === 0 ? (
         <Card>
-          <p className="text-slate-400">Queue empty. Submit a tool at /submit to see it here.</p>
+          <p className="text-slate-400">Queue empty.</p>
         </Card>
       ) : (
         <div className="space-y-3">
           {items.map((t) => (
             <Card key={t.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-slate-50">{t.name}</span>
+                  {getSourceBadge((t as any).source)}
                   <Badge tone="neutral">{t.pricingModel}</Badge>
                   {t.categories.map((c) => (
                     <Badge key={c.slug} tone="teal">{c.name}</Badge>
@@ -43,7 +59,7 @@ export default async function AdminPage() {
                 <p className="mt-1 truncate text-sm text-slate-400">
                   {t.tagline || <span className="italic text-slate-600">no tagline — run enrich</span>}
                 </p>
-                <a href={t.websiteUrl} className="text-xs text-teal hover:underline" rel="noreferrer">
+                <a href={t.websiteUrl} className="text-xs text-teal hover:underline" rel="noreferrer" target="_blank">
                   {t.websiteUrl}
                 </a>
               </div>

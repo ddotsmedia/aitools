@@ -8,6 +8,7 @@ import { TaxonomyModule } from "./modules/taxonomy/taxonomy.module";
 import { SearchModule } from "./modules/search/search.module";
 import { StackModule } from "./modules/stack/stack.module";
 import { VerificationModule } from "./modules/verification/verification.module";
+import { ScraperModule } from "./modules/scraper/scraper.module";
 import { HealthController } from "./health.controller";
 // P6+: ReviewsModule
 @Module({
@@ -21,6 +22,7 @@ import { HealthController } from "./health.controller";
     TaxonomyModule,
     StackModule,
     VerificationModule,
+    ScraperModule,
   ],
   controllers: [HealthController],
 })

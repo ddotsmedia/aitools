@@ -87,6 +87,7 @@ export class ToolsService {
         : {}),
       ...(query.category ? { categories: { some: { slug: query.category } } } : {}),
       ...(query.pricing ? { pricingModel: query.pricing as PricingModel } : {}),
+      ...(query.source ? { source: query.source as any } : {}),
       ...(query.freeTierReal !== undefined ? { freeTierReal: query.freeTierReal } : {}),
     };
     const [items, total] = await this.prisma.$transaction([

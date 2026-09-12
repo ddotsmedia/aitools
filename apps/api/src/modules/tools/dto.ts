@@ -40,6 +40,7 @@ export class ListToolsQuery {
   @IsOptional() @IsString() q?: string;
   @IsOptional() @IsString() category?: string; // slug
   @IsOptional() @IsString() pricing?: string;
+  @IsOptional() @IsString() source?: string; // tool source filter
   @IsOptional() @IsBoolean() freeTierReal?: boolean;
   @IsOptional() @IsInt() @Min(1) @Max(100) take?: number;
   @IsOptional() @IsInt() @Min(0) skip?: number;
